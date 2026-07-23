@@ -109,7 +109,7 @@ export async function fetchForecast(latitude: number, longitude: number): Promis
     const time = hourlyTimes[idx]
     hourly.push({
       time,
-      hourLabel: `${HOUR_FORMATTER.format(new Date(time))}時`,
+      hourLabel: HOUR_FORMATTER.format(new Date(time)),
       temperature: Math.round(hourlyTemps[idx]),
       category: codeToCategory(hourlyCodes[idx]),
       precipitationProbability: hourlyPrecip[idx] ?? 0,

@@ -71,7 +71,6 @@ export function WeatherView({
             <div className="temp-pills">
               <span className="pill pill-max">最高 {today.maxTemp}°</span>
               <span className="pill pill-min">最低 {today.minTemp}°</span>
-              <span className="pill pill-precip">☔ {today.precipitationProbability}%</span>
             </div>
           </div>
           {tomorrow && <TodayTomorrowCard today={today} tomorrow={tomorrow} />}
