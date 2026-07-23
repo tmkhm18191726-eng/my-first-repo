@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { CATEGORY_EMOJI, type DailyPoint, type HourlyPoint } from '../types'
+import type { DailyPoint, HourlyPoint } from '../types'
+import { WeatherIcon } from './WeatherIcon'
 
 interface Props {
   hourly: HourlyPoint[]
@@ -31,7 +32,7 @@ export function ForecastTabs({ hourly, daily }: Props) {
           {hourly.map((point) => (
             <div className="hourly-card" key={point.time}>
               <span className="hourly-label">{point.hourLabel}</span>
-              <span className="hourly-emoji">{CATEGORY_EMOJI[point.category]}</span>
+              <WeatherIcon category={point.category} size={26} />
               <span className="hourly-temp">{point.temperature}°</span>
               <span className="hourly-precip">{point.precipitationProbability}%</span>
             </div>
@@ -44,7 +45,7 @@ export function ForecastTabs({ hourly, daily }: Props) {
           {daily.map((point) => (
             <div className="daily-row" key={point.date}>
               <span className="daily-weekday">{point.weekdayLabel}</span>
-              <span className="daily-emoji">{CATEGORY_EMOJI[point.category]}</span>
+              <WeatherIcon category={point.category} size={22} />
               <span className="daily-precip">{point.precipitationProbability}%</span>
               <span className="daily-max">{point.maxTemp}°</span>
               <span className="daily-min">{point.minTemp}°</span>

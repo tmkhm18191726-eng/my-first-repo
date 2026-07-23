@@ -1,7 +1,8 @@
-import { CATEGORY_EMOJI, CATEGORY_GRADIENT, type Forecast } from '../types'
+import { CATEGORY_GRADIENT, type Forecast } from '../types'
 import { describeWeatherCode } from '../lib/weather'
 import { getSpeechLines } from '../lib/messages'
 import { SpeechBubble } from './SpeechBubble'
+import { WeatherIcon } from './WeatherIcon'
 
 interface Props {
   forecast: Forecast | null
@@ -29,7 +30,7 @@ export function WeatherView({ forecast, loading, error, photoUrl, name, onRetry 
       className="weather-view"
       style={{
         backgroundImage: photoUrl
-          ? `linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.55) 100%), ${background}`
+          ? `linear-gradient(180deg, rgba(20,10,20,0.45) 0%, rgba(20,10,20,0) 32%, rgba(20,10,20,0) 60%, rgba(20,10,20,0.6) 100%), ${background}`
           : background,
       }}
     >
@@ -52,13 +53,15 @@ export function WeatherView({ forecast, loading, error, photoUrl, name, onRetry 
         <div className="weather-header">
           <p className="date">{dateLabel}</p>
           <div className="weather-headline">
-            <span className="emoji">{CATEGORY_EMOJI[weather.category]}</span>
+            <span className="weather-icon-badge">
+              <WeatherIcon category={weather.category} size={40} />
+            </span>
             <span className="temperature">{weather.temperature}°</span>
           </div>
           <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
           <div className="temp-pills">
-            <span className="pill pill-max">最高 {today.maxTemp}°</span>
-            <span className="pill pill-min">最低 {today.minTemp}°</span>
+            <span className="pill pill-max">↑ {today.maxTemp}°</span>
+            <span className="pill pill-min">↓ {today.minTemp}°</span>
           </div>
         </div>
       )}
