@@ -5,13 +5,14 @@ interface Props {
 export function SpeechBubble({ lines }: Props) {
   return (
     <div className="speech-bubble">
-      <span className="speech-bubble-quote">❝</span>
+      <span className="speech-bubble-badge">♥</span>
       <div className="speech-bubble-lines">
         {lines.map((line, i) => (
-          <p key={i}>{line}</p>
+          <p key={i} className={i === 0 ? 'speech-bubble-lead' : undefined}>
+            {line}
+          </p>
         ))}
       </div>
-      <span className="speech-bubble-heart">♥</span>
     </div>
   )
 }
