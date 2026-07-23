@@ -46,6 +46,13 @@ export const CATEGORY_LABELS: Record<WeatherCategory, string> = {
 
 export const CATEGORY_ORDER: WeatherCategory[] = ['sunny', 'cloudy', 'rainy', 'snowy']
 
+export const CATEGORY_DESCRIPTIONS: Record<WeatherCategory, string> = {
+  sunny: '晴れた日にぴったりの写真を選ぼう',
+  cloudy: 'やさしい曇り空に合う一枚を',
+  rainy: '雨の日にほっとひと息つける写真を',
+  snowy: '寒い日にあたたかくなれる写真を',
+}
+
 export const CATEGORY_GRADIENT: Record<WeatherCategory, string> = {
   sunny: 'linear-gradient(160deg, #ffd97a 0%, #ff9a6c 100%)',
   cloudy: 'linear-gradient(160deg, #cfd9e6 0%, #8fa3bf 100%)',

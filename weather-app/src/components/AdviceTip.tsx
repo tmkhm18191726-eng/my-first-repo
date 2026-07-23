@@ -1,4 +1,4 @@
-import { getAdviceLines } from '../lib/advice'
+import { getAdvice } from '../lib/advice'
 import type { Forecast } from '../types'
 
 interface Props {
@@ -6,17 +6,16 @@ interface Props {
 }
 
 export function AdviceTip({ forecast }: Props) {
-  const lines = getAdviceLines(forecast)
+  const { icon, lines } = getAdvice(forecast)
 
   return (
     <div className="advice-tip">
-      <span className="advice-tip-icon">💗</span>
+      <span className="advice-tip-icon">{icon}</span>
       <div className="advice-tip-text">
         {lines.map((line, i) => (
           <p key={i}>{line}</p>
         ))}
       </div>
-      <span className="advice-tip-chevron">›</span>
     </div>
   )
 }
