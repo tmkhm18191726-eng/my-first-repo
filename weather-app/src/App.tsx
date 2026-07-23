@@ -27,6 +27,7 @@ function App() {
             photoUrl={urls[category]}
             name={name}
             onRetry={refresh}
+            onOpenForecast={() => setTab('forecast')}
           />
         )}
         {tab === 'forecast' &&
