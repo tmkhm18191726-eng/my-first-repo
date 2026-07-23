@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { CATEGORY_LABELS, CATEGORY_ORDER, type WeatherCategory } from '../types'
+import { WeatherIcon } from './WeatherIcon'
 
 interface Props {
   urls: Partial<Record<WeatherCategory, string>>
@@ -14,22 +15,25 @@ export function PhotoManager({ urls, onSetPhoto, onRemovePhoto, name, onNameChan
 
   return (
     <div className="photo-manager">
-      <h1>思い出の写真を設定</h1>
+      <h1>思い出の写真を設定 💗</h1>
 
       <p className="lead">
         天気ごとに、お子さんや大切な思い出の写真を登録しておくと、その日の天気に合わせて背景に表示されます。
       </p>
 
       <div className="name-field">
-        <label htmlFor="person-name">呼んでほしい名前</label>
-        <input
-          id="person-name"
-          type="text"
-          placeholder="例：かなちゃん"
-          value={name}
-          maxLength={20}
-          onChange={(e) => onNameChange(e.target.value)}
-        />
+        <span className="name-field-avatar">👤</span>
+        <div className="name-field-input">
+          <label htmlFor="person-name">呼んでほしい名前</label>
+          <input
+            id="person-name"
+            type="text"
+            placeholder="例：かなちゃん"
+            value={name}
+            maxLength={20}
+            onChange={(e) => onNameChange(e.target.value)}
+          />
+        </div>
       </div>
 
       <ul className="category-list">
@@ -38,17 +42,18 @@ export function PhotoManager({ urls, onSetPhoto, onRemovePhoto, name, onNameChan
           return (
             <li key={category} className="category-item">
               <div
-                className="thumb"
+                className="thumb-large"
                 style={url ? { backgroundImage: `url(${url})` } : undefined}
               >
                 {!url && <span>未設定</span>}
               </div>
               <div className="category-info">
-                <p className="category-name">{CATEGORY_LABELS[category]}</p>
+                <p className="category-name">
+                  <WeatherIcon category={category} size={22} />
+                  {CATEGORY_LABELS[category]}
+                </p>
                 <div className="category-actions">
-                  <button
-                    onClick={() => inputRefs.current[category]?.click()}
-                  >
+                  <button onClick={() => inputRefs.current[category]?.click()}>
                     {url ? '写真を変更' : '写真を追加'}
                   </button>
                   {url && (
