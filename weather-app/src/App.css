@@ -74,6 +74,176 @@
   border-radius: 999px;
 }
 
+.speech-bubble {
+  position: relative;
+  max-width: 260px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #333;
+  border-radius: 18px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  text-shadow: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.speech-bubble p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0 8px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.92) transparent transparent transparent;
+}
+
+.forecast-panel {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.today-points {
+  display: flex;
+  gap: 10px;
+}
+
+.today-point-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #f7f4ef;
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.today-point-icon {
+  font-size: 24px;
+}
+
+.today-point-label {
+  font-size: 11px;
+  color: #999;
+}
+
+.today-point-text {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.forecast-tabs .tab-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.forecast-tabs .tab-switch button {
+  flex: 1;
+  border: none;
+  border-radius: 999px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #f1f1f1;
+  color: #888;
+  cursor: pointer;
+}
+
+.forecast-tabs .tab-switch button.active {
+  background: #3c5878;
+  color: #fff;
+}
+
+.hourly-list {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.hourly-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 56px;
+}
+
+.hourly-label {
+  font-size: 12px;
+  color: #999;
+}
+
+.hourly-emoji {
+  font-size: 22px;
+}
+
+.hourly-temp {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hourly-precip {
+  font-size: 11px;
+  color: #6b8cae;
+}
+
+.daily-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-row {
+  display: grid;
+  grid-template-columns: 48px 32px 40px 1fr 1fr;
+  align-items: center;
+  padding: 10px 4px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.daily-row:last-child {
+  border-bottom: none;
+}
+
+.daily-weekday {
+  font-weight: 600;
+}
+
+.daily-emoji {
+  font-size: 18px;
+}
+
+.daily-precip {
+  color: #6b8cae;
+  font-size: 12px;
+}
+
+.daily-max {
+  text-align: right;
+  font-weight: 700;
+}
+
+.daily-min {
+  text-align: right;
+  color: #999;
+}
+
 .status {
   font-size: 16px;
 }

@@ -6,16 +6,16 @@ import { usePhotos } from './hooks/usePhotos'
 import './App.css'
 
 function App() {
-  const { weather, loading, error, refresh } = useWeather()
+  const { forecast, loading, error, refresh } = useWeather()
   const { urls, setPhoto, removePhoto } = usePhotos()
   const [showSettings, setShowSettings] = useState(false)
 
-  const category = weather?.category ?? 'sunny'
+  const category = forecast?.current.category ?? 'sunny'
 
   return (
     <div className="app">
       <WeatherView
-        weather={weather}
+        forecast={forecast}
         loading={loading}
         error={error}
         photoUrl={urls[category]}

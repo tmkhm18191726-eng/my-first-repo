@@ -1,4 +1,4 @@
-import type { CurrentWeather, WeatherCategory } from '../types'
+import type { DailyPoint, Forecast, HourlyPoint, WeatherCategory } from '../types'
 
 // WMO weather interpretation codes -> https://open-meteo.com/en/docs
 function codeToCategory(code: number): WeatherCategory {
@@ -65,14 +65,20 @@ export function getCurrentPosition(): Promise<GeolocationPosition> {
   })
 }
 
-export async function fetchCurrentWeather(
-  latitude: number,
-  longitude: number,
-): Promise<CurrentWeather> {
+const HOUR_FORMATTER = new Intl.DateTimeFormat('ja-JP', { hour: '2-digit', hour12: false })
+const WEEKDAY_FORMATTER = new Intl.DateTimeFormat('ja-JP', { weekday: 'short' })
+
+export async function fetchForecast(latitude: number, longitude: number): Promise<Forecast> {
   const url = new URL('https://api.open-meteo.com/v1/forecast')
   url.searchParams.set('latitude', latitude.toString())
   url.searchParams.set('longitude', longitude.toString())
   url.searchParams.set('current_weather', 'true')
+  url.searchParams.set('hourly', 'temperature_2m,weathercode,precipitation_probability')
+  url.searchParams.set(
+    'daily',
+    'weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+  )
+  url.searchParams.set('forecast_days', '7')
   url.searchParams.set('timezone', 'auto')
 
   const res = await fetch(url.toString())
@@ -85,10 +91,55 @@ export async function fetchCurrentWeather(
     throw new Error('天気情報の形式が不正です')
   }
 
+  const hourlyTimes: string[] = data.hourly?.time ?? []
+  const hourlyTemps: number[] = data.hourly?.temperature_2m ?? []
+  const hourlyCodes: number[] = data.hourly?.weathercode ?? []
+  const hourlyPrecip: number[] = data.hourly?.precipitation_probability ?? []
+
+  let currentHourIndex = hourlyTimes.findIndex((t) => t === current.time)
+  if (currentHourIndex === -1) {
+    currentHourIndex = hourlyTimes.findIndex((t) => new Date(t) >= new Date(current.time))
+  }
+  if (currentHourIndex === -1) currentHourIndex = 0
+
+  const hourly: HourlyPoint[] = []
+  for (let i = 0; i < 7; i++) {
+    const idx = currentHourIndex + i * 4
+    if (idx >= hourlyTimes.length) break
+    const time = hourlyTimes[idx]
+    hourly.push({
+      time,
+      hourLabel: `${HOUR_FORMATTER.format(new Date(time))}時`,
+      temperature: Math.round(hourlyTemps[idx]),
+      category: codeToCategory(hourlyCodes[idx]),
+      precipitationProbability: hourlyPrecip[idx] ?? 0,
+    })
+  }
+
+  const dailyDates: string[] = data.daily?.time ?? []
+  const dailyCodes: number[] = data.daily?.weathercode ?? []
+  const dailyMax: number[] = data.daily?.temperature_2m_max ?? []
+  const dailyMin: number[] = data.daily?.temperature_2m_min ?? []
+  const dailyPrecip: number[] = data.daily?.precipitation_probability_max ?? []
+
+  const daily: DailyPoint[] = dailyDates.map((date, idx) => ({
+    date,
+    weekdayLabel: idx === 0 ? '今日' : WEEKDAY_FORMATTER.format(new Date(date)),
+    maxTemp: Math.round(dailyMax[idx]),
+    minTemp: Math.round(dailyMin[idx]),
+    category: codeToCategory(dailyCodes[idx]),
+    precipitationProbability: dailyPrecip[idx] ?? 0,
+  }))
+
   return {
-    temperature: Math.round(current.temperature),
-    weatherCode: current.weathercode,
-    category: codeToCategory(current.weathercode),
-    isDay: current.is_day === 1,
+    current: {
+      temperature: Math.round(current.temperature),
+      weatherCode: current.weathercode,
+      category: codeToCategory(current.weathercode),
+      isDay: current.is_day === 1,
+      precipitationProbability: hourlyPrecip[currentHourIndex] ?? 0,
+    },
+    hourly,
+    daily,
   }
 }

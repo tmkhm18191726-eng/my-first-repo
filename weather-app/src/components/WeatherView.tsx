@@ -1,22 +1,12 @@
-import { CATEGORY_LABELS, type CurrentWeather, type WeatherCategory } from '../types'
+import { CATEGORY_EMOJI, CATEGORY_GRADIENT, CATEGORY_LABELS, type Forecast } from '../types'
 import { describeWeatherCode } from '../lib/weather'
-
-const CATEGORY_EMOJI: Record<WeatherCategory, string> = {
-  sunny: '☀️',
-  cloudy: '☁️',
-  rainy: '☔️',
-  snowy: '❄️',
-}
-
-const CATEGORY_GRADIENT: Record<WeatherCategory, string> = {
-  sunny: 'linear-gradient(160deg, #ffd97a 0%, #ff9a6c 100%)',
-  cloudy: 'linear-gradient(160deg, #cfd9e6 0%, #8fa3bf 100%)',
-  rainy: 'linear-gradient(160deg, #6b8cae 0%, #3c5878 100%)',
-  snowy: 'linear-gradient(160deg, #e8f1fb 0%, #a9c2de 100%)',
-}
+import { getSpeechMessage } from '../lib/messages'
+import { SpeechBubble } from './SpeechBubble'
+import { TodayPoints } from './TodayPoints'
+import { ForecastTabs } from './ForecastTabs'
 
 interface Props {
-  weather: CurrentWeather | null
+  forecast: Forecast | null
   loading: boolean
   error: string | null
   photoUrl: string | undefined
@@ -24,11 +14,10 @@ interface Props {
   onOpenSettings: () => void
 }
 
-export function WeatherView({ weather, loading, error, photoUrl, onRetry, onOpenSettings }: Props) {
+export function WeatherView({ forecast, loading, error, photoUrl, onRetry, onOpenSettings }: Props) {
+  const weather = forecast?.current ?? null
   const category = weather?.category ?? 'sunny'
-  const background = photoUrl
-    ? `url(${photoUrl})`
-    : CATEGORY_GRADIENT[category]
+  const background = photoUrl ? `url(${photoUrl})` : CATEGORY_GRADIENT[category]
 
   const today = new Intl.DateTimeFormat('ja-JP', {
     month: 'long',
@@ -61,8 +50,9 @@ export function WeatherView({ weather, loading, error, photoUrl, onRetry, onOpen
           </div>
         )}
 
-        {weather && !loading && !error && (
+        {forecast && weather && !loading && !error && (
           <>
+            {photoUrl && <SpeechBubble message={getSpeechMessage(forecast)} />}
             <p className="emoji">{CATEGORY_EMOJI[weather.category]}</p>
             <p className="temperature">{weather.temperature}°</p>
             <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
@@ -74,6 +64,13 @@ export function WeatherView({ weather, loading, error, photoUrl, onRetry, onOpen
           </>
         )}
       </div>
+
+      {forecast && !loading && !error && (
+        <div className="forecast-panel">
+          {forecast.daily[0] && <TodayPoints today={forecast.daily[0]} />}
+          <ForecastTabs hourly={forecast.hourly} daily={forecast.daily} />
+        </div>
+      )}
     </div>
   )
 }
