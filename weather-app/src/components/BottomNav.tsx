@@ -6,7 +6,7 @@ interface Props {
 }
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'weather', label: '天気', icon: '🐾' },
+  { key: 'weather', label: '天気', icon: '☀️' },
   { key: 'forecast', label: '予報', icon: '📅' },
   { key: 'photos', label: '写真', icon: '🖼️' },
 ]

@@ -3,7 +3,7 @@ import type { Forecast, WeatherCategory } from '../types'
 const MESSAGES: Record<WeatherCategory, string[][]> = {
   sunny: [
     ['こんにちは、外は少し汗ばむかもね🌤️', 'いいペースでいこうね♪'],
-    ['今日はいいお天気だよ', 'お散歩日和だね🐾'],
+    ['今日はいいお天気だよ', 'お出かけ日和だね✨'],
     ['日差しが強いから', '水分補給を忘れずにね💧'],
   ],
   cloudy: [
