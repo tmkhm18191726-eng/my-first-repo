@@ -74,9 +74,7 @@
 
 .temp-pills {
   display: flex;
-  flex-wrap: wrap;
   gap: 6px;
-  max-width: 210px;
 }
 
 .pill {
@@ -95,10 +93,6 @@
 
 .pill-min {
   color: #3f7dc2;
-}
-
-.pill-precip {
-  color: #4a3f45;
 }
 
 .tt-card {
