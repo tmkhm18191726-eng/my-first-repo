@@ -1,36 +1,24 @@
-import { CATEGORY_LABELS, type CurrentWeather, type WeatherCategory } from '../types'
+import { CATEGORY_EMOJI, CATEGORY_GRADIENT, type Forecast } from '../types'
 import { describeWeatherCode } from '../lib/weather'
-
-const CATEGORY_EMOJI: Record<WeatherCategory, string> = {
-  sunny: '☀️',
-  cloudy: '☁️',
-  rainy: '☔️',
-  snowy: '❄️',
-}
-
-const CATEGORY_GRADIENT: Record<WeatherCategory, string> = {
-  sunny: 'linear-gradient(160deg, #ffd97a 0%, #ff9a6c 100%)',
-  cloudy: 'linear-gradient(160deg, #cfd9e6 0%, #8fa3bf 100%)',
-  rainy: 'linear-gradient(160deg, #6b8cae 0%, #3c5878 100%)',
-  snowy: 'linear-gradient(160deg, #e8f1fb 0%, #a9c2de 100%)',
-}
+import { getSpeechLines } from '../lib/messages'
+import { SpeechBubble } from './SpeechBubble'
 
 interface Props {
-  weather: CurrentWeather | null
+  forecast: Forecast | null
   loading: boolean
   error: string | null
   photoUrl: string | undefined
+  name: string
   onRetry: () => void
-  onOpenSettings: () => void
 }
 
-export function WeatherView({ weather, loading, error, photoUrl, onRetry, onOpenSettings }: Props) {
+export function WeatherView({ forecast, loading, error, photoUrl, name, onRetry }: Props) {
+  const weather = forecast?.current ?? null
+  const today = forecast?.daily[0]
   const category = weather?.category ?? 'sunny'
-  const background = photoUrl
-    ? `url(${photoUrl})`
-    : CATEGORY_GRADIENT[category]
+  const background = photoUrl ? `url(${photoUrl})` : CATEGORY_GRADIENT[category]
 
-  const today = new Intl.DateTimeFormat('ja-JP', {
+  const dateLabel = new Intl.DateTimeFormat('ja-JP', {
     month: 'long',
     day: 'numeric',
     weekday: 'short',
@@ -41,39 +29,49 @@ export function WeatherView({ weather, loading, error, photoUrl, onRetry, onOpen
       className="weather-view"
       style={{
         backgroundImage: photoUrl
-          ? `linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%), ${background}`
+          ? `linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.55) 100%), ${background}`
           : background,
       }}
     >
-      <button className="settings-btn" onClick={onOpenSettings} aria-label="写真を設定">
-        ⚙️
-      </button>
+      {loading && (
+        <div className="weather-header">
+          <p className="status">現在地の天気を取得中...</p>
+        </div>
+      )}
 
-      <div className="weather-content">
-        <p className="date">{today}</p>
-
-        {loading && <p className="status">現在地の天気を取得中...</p>}
-
-        {error && (
+      {error && (
+        <div className="weather-header">
           <div className="status error">
             <p>{error}</p>
             <button onClick={onRetry}>もう一度試す</button>
           </div>
-        )}
+        </div>
+      )}
 
-        {weather && !loading && !error && (
-          <>
-            <p className="emoji">{CATEGORY_EMOJI[weather.category]}</p>
-            <p className="temperature">{weather.temperature}°</p>
-            <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
-            {!photoUrl && (
-              <p className="hint">
-                ⚙️ から「{CATEGORY_LABELS[weather.category]}」の写真を登録できます
-              </p>
-            )}
-          </>
-        )}
-      </div>
+      {weather && today && !loading && !error && (
+        <div className="weather-header">
+          <p className="date">{dateLabel}</p>
+          <div className="weather-headline">
+            <span className="emoji">{CATEGORY_EMOJI[weather.category]}</span>
+            <span className="temperature">{weather.temperature}°</span>
+          </div>
+          <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
+          <div className="temp-pills">
+            <span className="pill pill-max">最高 {today.maxTemp}°</span>
+            <span className="pill pill-min">最低 {today.minTemp}°</span>
+          </div>
+        </div>
+      )}
+
+      {forecast && !loading && !error && (
+        <div className="weather-footer">
+          {photoUrl ? (
+            <SpeechBubble lines={getSpeechLines(forecast, name)} />
+          ) : (
+            <p className="hint">「写真」タブから思い出の写真を登録すると、ここに表示されるよ</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

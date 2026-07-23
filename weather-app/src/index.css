@@ -1,6 +1,7 @@
 :root {
   color-scheme: light;
-  font-family: system-ui, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Maru Gothic Pro', 'UD Digi Kyokasho N-R',
+    'BIZ UDGothic', system-ui, 'Hiragino Sans', 'Yu Gothic', sans-serif;
 }
 
 * {
@@ -12,8 +13,9 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overscroll-behavior: none;
 }
 
 #root {
-  min-height: 100svh;
+  height: 100svh;
 }

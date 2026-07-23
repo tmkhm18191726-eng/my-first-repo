@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
-import { fetchCurrentWeather, getCurrentPosition } from '../lib/weather'
-import type { CurrentWeather } from '../types'
+import { fetchForecast, getCurrentPosition } from '../lib/weather'
+import type { Forecast } from '../types'
 
 interface WeatherState {
-  weather: CurrentWeather | null
+  forecast: Forecast | null
   loading: boolean
   error: string | null
 }
 
 export function useWeather() {
   const [state, setState] = useState<WeatherState>({
-    weather: null,
+    forecast: null,
     loading: true,
     error: null,
   })
@@ -19,11 +19,8 @@ export function useWeather() {
     setState((prev) => ({ ...prev, loading: true, error: null }))
     try {
       const position = await getCurrentPosition()
-      const weather = await fetchCurrentWeather(
-        position.coords.latitude,
-        position.coords.longitude,
-      )
-      setState({ weather, loading: false, error: null })
+      const forecast = await fetchForecast(position.coords.latitude, position.coords.longitude)
+      setState({ forecast, loading: false, error: null })
     } catch (err) {
       const message =
         err instanceof GeolocationPositionError
@@ -31,7 +28,7 @@ export function useWeather() {
           : err instanceof Error
             ? err.message
             : '天気情報の取得に失敗しました'
-      setState({ weather: null, loading: false, error: message })
+      setState({ forecast: null, loading: false, error: message })
     }
   }, [])
 
