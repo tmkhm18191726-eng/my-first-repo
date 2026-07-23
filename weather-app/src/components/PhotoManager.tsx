@@ -5,24 +5,32 @@ interface Props {
   urls: Partial<Record<WeatherCategory, string>>
   onSetPhoto: (category: WeatherCategory, file: File) => void
   onRemovePhoto: (category: WeatherCategory) => void
-  onClose: () => void
+  name: string
+  onNameChange: (name: string) => void
 }
 
-export function PhotoManager({ urls, onSetPhoto, onRemovePhoto, onClose }: Props) {
+export function PhotoManager({ urls, onSetPhoto, onRemovePhoto, name, onNameChange }: Props) {
   const inputRefs = useRef<Partial<Record<WeatherCategory, HTMLInputElement | null>>>({})
 
   return (
     <div className="photo-manager">
-      <header>
-        <h1>思い出の写真を設定</h1>
-        <button className="close-btn" onClick={onClose} aria-label="閉じる">
-          ✕
-        </button>
-      </header>
+      <h1>思い出の写真を設定</h1>
 
       <p className="lead">
         天気ごとに、お子さんや大切な思い出の写真を登録しておくと、その日の天気に合わせて背景に表示されます。
       </p>
+
+      <div className="name-field">
+        <label htmlFor="person-name">呼んでほしい名前</label>
+        <input
+          id="person-name"
+          type="text"
+          placeholder="例：かなちゃん"
+          value={name}
+          maxLength={20}
+          onChange={(e) => onNameChange(e.target.value)}
+        />
+      </div>
 
       <ul className="category-list">
         {CATEGORY_ORDER.map((category) => {
