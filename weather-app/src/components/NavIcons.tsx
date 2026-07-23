@@ -24,18 +24,18 @@ export function WeatherTabIcon({ active }: IconProps) {
   )
 }
 
+const MONTH_LABELS = [
+  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+]
+
 export function ForecastTabIcon({ active }: IconProps) {
-  const c = active ? STROKE_ACTIVE : STROKE_INACTIVE
+  const now = new Date()
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="3" y="4.5" width="18" height="16" rx="3" stroke={c} strokeWidth="1.8" />
-      <line x1="3" y1="9.5" x2="21" y2="9.5" stroke={c} strokeWidth="1.8" />
-      <line x1="7.5" y1="2" x2="7.5" y2="6" stroke={c} strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="16.5" y1="2" x2="16.5" y2="6" stroke={c} strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx="8" cy="14" r="1.3" fill={c} />
-      <circle cx="12" cy="14" r="1.3" fill={c} />
-      <circle cx="16" cy="14" r="1.3" fill={c} />
-    </svg>
+    <span className={`calendar-icon${active ? ' active' : ''}`}>
+      <span className="calendar-icon-month">{MONTH_LABELS[now.getMonth()]}</span>
+      <span className="calendar-icon-day">{now.getDate()}</span>
+    </span>
   )
 }
 
