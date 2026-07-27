@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import type { DailyPoint, HourlyPoint } from '../types'
 import { WeatherIcon } from './WeatherIcon'
 
@@ -8,26 +7,9 @@ interface Props {
 }
 
 export function ForecastTabs({ hourly, daily }: Props) {
-  const [tab, setTab] = useState<'hourly' | 'daily'>('hourly')
-
   return (
-    <div className="forecast-tabs">
-      <div className="tab-switch">
-        <button
-          className={tab === 'hourly' ? 'active' : ''}
-          onClick={() => setTab('hourly')}
-        >
-          時間天気
-        </button>
-        <button
-          className={tab === 'daily' ? 'active' : ''}
-          onClick={() => setTab('daily')}
-        >
-          週間天気
-        </button>
-      </div>
-
-      {tab === 'hourly' && (
+    <div className="forecast-lists">
+      <div className="forecast-section-card">
         <div className="hourly-list">
           {hourly.map((point) => (
             <div className="hourly-card" key={point.time}>
@@ -38,21 +20,24 @@ export function ForecastTabs({ hourly, daily }: Props) {
             </div>
           ))}
         </div>
-      )}
-
-      {tab === 'daily' && (
+      </div>
+      <button className="radar-link" type="button">
+        <span aria-hidden="true">☂</span> 雨雲レーダーを見る <strong aria-hidden="true">›</strong>
+      </button>
+      <h2 className="section-title">週間天気</h2>
+      <div className="forecast-section-card">
         <div className="daily-list">
           {daily.map((point) => (
             <div className="daily-row" key={point.date}>
               <span className="daily-weekday">{point.weekdayLabel}</span>
               <WeatherIcon category={point.category} size={22} />
-              <span className="daily-precip">{point.precipitationProbability}%</span>
               <span className="daily-max">{point.maxTemp}°</span>
               <span className="daily-min">{point.minTemp}°</span>
+              <span className="daily-precip">{point.precipitationProbability}%</span>
             </div>
           ))}
         </div>
-      )}
+      </div>
     </div>
   )
 }

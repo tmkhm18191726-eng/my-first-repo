@@ -1,4 +1,5 @@
-import { CATEGORY_GRADIENT, type Forecast } from '../types'
+import { useRef, type PointerEvent } from 'react'
+import type { Forecast } from '../types'
 import { describeWeatherCode } from '../lib/weather'
 import { getSpeechLines } from '../lib/messages'
 import { SpeechBubble } from './SpeechBubble'
@@ -12,6 +13,8 @@ interface Props {
   error: string | null
   photoUrl: string | undefined
   name: string
+  locationLabel: string
+  showHourly: boolean
   onRetry: () => void
   onOpenForecast: () => void
 }
@@ -22,14 +25,18 @@ export function WeatherView({
   error,
   photoUrl,
   name,
+  locationLabel,
+  showHourly,
   onRetry,
   onOpenForecast,
 }: Props) {
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
   const weather = forecast?.current ?? null
   const today = forecast?.daily[0]
   const tomorrow = forecast?.daily[1]
-  const category = weather?.category ?? 'sunny'
-  const background = photoUrl ? `url(${photoUrl})` : CATEGORY_GRADIENT[category]
+  const defaultPhotoUrl = `${import.meta.env.BASE_URL}default-memory-child.png`
+  const activePhotoUrl = photoUrl ?? defaultPhotoUrl
+  const background = `url(${activePhotoUrl})`
 
   const dateLabel = new Intl.DateTimeFormat('ja-JP', {
     month: 'long',
@@ -37,13 +44,39 @@ export function WeatherView({
     weekday: 'short',
   }).format(new Date())
 
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    touchStart.current = { x: event.clientX, y: event.clientY }
+  }
+
+  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (!touchStart.current) return
+
+    const distanceX = event.clientX - touchStart.current.x
+    const distanceY = event.clientY - touchStart.current.y
+    touchStart.current = null
+
+    if (distanceY < -64 && Math.abs(distanceY) > Math.abs(distanceX) * 1.25) {
+      onOpenForecast()
+    }
+  }
+
   return (
     <div
-      className="weather-view"
+      className="weather-view has-photo"
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
       style={{
-        backgroundImage: `linear-gradient(180deg, rgba(255,251,245,0.78) 0%, rgba(255,251,245,0.4) 20%, rgba(255,251,245,0) 40%, rgba(20,10,20,0) 65%, rgba(20,10,20,0.4) 100%), ${background}`,
+        backgroundImage: `linear-gradient(180deg, rgba(255,250,246,0.9) 0%, rgba(255,250,246,0.42) 24%, rgba(34,25,20,0.02) 52%, rgba(34,25,20,0.5) 100%), ${background}`,
       }}
     >
+      <header className="brand-row">
+        <div>
+          <p className="brand-kicker">MEMORY WEATHER</p>
+          <p className="brand-name">おもいで天気</p>
+        </div>
+        <span className="brand-heart" aria-hidden="true">♥</span>
+      </header>
+
       {loading && (
         <div className="weather-top-row">
           <p className="status">現在地の天気を取得中...</p>
@@ -62,6 +95,9 @@ export function WeatherView({
       {weather && today && !loading && !error && (
         <div className="weather-top-row">
           <div className="weather-top-left">
+            <p className="location-label">
+              <span aria-hidden="true">●</span> {locationLabel}
+            </p>
             <p className="date">{dateLabel}</p>
             <div className="weather-headline">
               <span className="temperature">{weather.temperature}°</span>
@@ -71,10 +107,15 @@ export function WeatherView({
             <div className="temp-pills">
               <span className="pill pill-max">最高 {today.maxTemp}°</span>
               <span className="pill pill-min">最低 {today.minTemp}°</span>
-              <span className="pill pill-precip">☔ {today.precipitationProbability}%</span>
             </div>
           </div>
-          {tomorrow && <TodayTomorrowCard today={today} tomorrow={tomorrow} />}
+          <div className="weather-side">
+            <div className="weather-actions" aria-label="クイック操作">
+              <span aria-hidden="true">♢</span>
+              <span className="heart" aria-hidden="true">♥</span>
+            </div>
+            {tomorrow && <TodayTomorrowCard today={today} tomorrow={tomorrow} />}
+          </div>
         </div>
       )}
 
@@ -82,15 +123,11 @@ export function WeatherView({
 
       {forecast && !loading && !error && (
         <div className="weather-bottom">
-          {photoUrl ? (
-            <SpeechBubble lines={getSpeechLines(forecast, name)} />
-          ) : (
-            <p className="hint">「写真」タブから思い出の写真を登録すると、ここに表示されるよ</p>
-          )}
+          <SpeechBubble lines={getSpeechLines(forecast, name)} photoUrl={activePhotoUrl} />
           <button className="detail-hint" onClick={onOpenForecast}>
-            <span>⌃</span> タップで詳しい天気
+            <span aria-hidden="true">⌃</span> 上にスライドで詳しい天気
           </button>
-          <HourlyStrip hourly={forecast.hourly} />
+          {showHourly && <HourlyStrip hourly={forecast.hourly} />}
         </div>
       )}
     </div>

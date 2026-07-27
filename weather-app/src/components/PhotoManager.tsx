@@ -12,14 +12,27 @@ interface Props {
 
 export function PhotoManager({ urls, onSetPhoto, onRemovePhoto, name, onNameChange }: Props) {
   const inputRefs = useRef<Partial<Record<WeatherCategory, HTMLInputElement | null>>>({})
+  const defaultPhotoUrl = `${import.meta.env.BASE_URL}default-memory-child.png`
 
   return (
     <div className="photo-manager">
-      <h1>思い出の写真を設定 💗</h1>
+      <div className="photo-manager-heading">
+        <h1>背景</h1>
+        <button
+          className="add-photo-button"
+          type="button"
+          aria-label="写真を追加"
+          onClick={() => inputRefs.current.sunny?.click()}
+        >
+          ＋
+        </button>
+      </div>
 
       <p className="lead">
-        お子さんや大切な思い出の写真で、天気画面をやさしく彩れます。
+        お子さんの思い出写真で、天気画面をやさしく彩ります
       </p>
+
+      <p className="privacy-banner">♥ 写真はこの端末の中だけに保存され、外部へ送信されません。</p>
 
       <div className="name-field">
         <span className="name-field-avatar">👤</span>
@@ -39,20 +52,20 @@ export function PhotoManager({ urls, onSetPhoto, onRemovePhoto, name, onNameChan
       <ul className="category-list">
         {CATEGORY_ORDER.map((category) => {
           const url = urls[category]
+          const previewUrl = url ?? defaultPhotoUrl
           return (
             <li key={category} className="category-item">
               <div
                 className="thumb-large"
-                style={url ? { backgroundImage: `url(${url})` } : undefined}
+                style={{ backgroundImage: `url(${previewUrl})` }}
               >
-                {!url && <span>未設定</span>}
               </div>
               <div className="category-info">
                 <div className="category-name-row">
                   <WeatherIcon category={category} size={20} />
                   <span className="category-name">{CATEGORY_LABELS[category]}</span>
                   <span className={`status-pill${url ? ' set' : ''}`}>
-                    {url ? '設定済み' : '未設定'}
+                    {url ? '使用中' : '標準背景'}
                   </span>
                 </div>
                 <p className="category-desc">{CATEGORY_DESCRIPTIONS[category]}</p>

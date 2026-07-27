@@ -59,3 +59,34 @@ export function PhotosTabIcon({ active }: IconProps) {
     </svg>
   )
 }
+
+export function AreaTabIcon({ active }: IconProps) {
+  const c = active ? STROKE_ACTIVE : STROKE_INACTIVE
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 6l5-3 8 3 5-3v15l-5 3-8-3-5 3z" fill="none" stroke={c} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M8 3v15M16 6v15" fill="none" stroke={c} strokeWidth="1.5" />
+    </svg>
+  )
+}
+
+export function RadarTabIcon({ active }: IconProps) {
+  const c = active ? STROKE_ACTIVE : STROKE_INACTIVE
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 19a7 7 0 1 1 7-7" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M12 15a3 3 0 1 1 3-3M12 12l7-5" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="1.8" fill={c} />
+    </svg>
+  )
+}
+
+export function SettingsTabIcon({ active }: IconProps) {
+  const c = active ? STROKE_ACTIVE : STROKE_INACTIVE
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9.7 3h4.6l.7 2.2 2 .8 2.1-1 2.3 4-1.7 1.5.3 2.2 1.8 1.4-2.3 4-2.2-.7-1.8 1.4-.4 2.2h-4.6l-.7-2.2-2-.8-2.1 1-2.3-4 1.7-1.5-.3-2.2-1.8-1.4 2.3-4 2.2.7 1.8-1.4z" fill="none" stroke={c} strokeWidth="1.5" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="3" fill="none" stroke={c} strokeWidth="1.7" />
+    </svg>
+  )
+}

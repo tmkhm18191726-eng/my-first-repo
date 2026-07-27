@@ -1,5 +1,6 @@
 import type { DailyPoint } from '../types'
 import { WeatherIcon } from './WeatherIcon'
+import { UmbrellaIcon } from './CuteIcons'
 
 interface Props {
   today: DailyPoint
@@ -16,7 +17,7 @@ export function TodayTomorrowCard({ today, tomorrow }: Props) {
           <span className="tt-max">{today.maxTemp}°</span>/
           <span className="tt-min">{today.minTemp}°</span>
         </span>
-        <span className="tt-precip">☔ {today.precipitationProbability}%</span>
+        <span className="tt-precip"><UmbrellaIcon size={13} />{today.precipitationProbability}%</span>
       </div>
       <div className="tt-divider" />
       <div className="tt-row">
@@ -26,7 +27,7 @@ export function TodayTomorrowCard({ today, tomorrow }: Props) {
           <span className="tt-max">{tomorrow.maxTemp}°</span>/
           <span className="tt-min">{tomorrow.minTemp}°</span>
         </span>
-        <span className="tt-precip">☔ {tomorrow.precipitationProbability}%</span>
+        <span className="tt-precip"><UmbrellaIcon size={13} />{tomorrow.precipitationProbability}%</span>
       </div>
     </div>
   )
