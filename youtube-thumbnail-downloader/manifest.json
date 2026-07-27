@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube サムネイル ダウンローダー",
+  "version": "1.0.0",
+  "description": "開いている YouTube 動画のサムネイルを解像度別に一覧表示し、ワンクリックで保存します。リンクの右クリックからも保存できます。",
+  "permissions": ["downloads", "activeTab", "contextMenus", "storage"],
+  "host_permissions": ["https://i.ytimg.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "YouTube サムネイルをダウンロード",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

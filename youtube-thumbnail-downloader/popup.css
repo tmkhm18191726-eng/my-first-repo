@@ -1,0 +1,232 @@
+:root {
+  --bg: #0f0f0f;
+  --panel: #1c1c1c;
+  --panel-hi: #272727;
+  --line: #303030;
+  --text: #f1f1f1;
+  --muted: #a0a0a0;
+  --accent: #ff0033;
+  --ok: #4ccf72;
+  --warn: #d8a13a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  width: 372px;
+  font-family: "Segoe UI", "Yu Gothic UI", Roboto, system-ui, sans-serif;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#app { padding: 12px; }
+
+/* ---- 動画の情報 ---- */
+
+.head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.preview {
+  position: relative;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 54px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--panel-hi);
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.preview-empty {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+/* display を指定した要素には hidden 属性が効かないので、明示的に消す。 */
+.preview img[hidden],
+.preview-empty[hidden] { display: none; }
+
+.meta { min-width: 0; }
+
+.title {
+  font-weight: 600;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.video-id {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: ui-monospace, Consolas, monospace;
+  word-break: break-all;
+}
+
+/* ---- 入力 ---- */
+
+.url-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.url-input::placeholder { color: #6d6d6d; }
+.url-input:focus { outline: none; border-color: #5a5a5a; }
+
+/* ---- オプション ---- */
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.seg button {
+  padding: 4px 12px;
+  border: 0;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seg button.on {
+  background: var(--panel-hi);
+  color: var(--text);
+}
+
+.chk {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.chk input { accent-color: var(--accent); margin: 0; }
+
+/* ---- ボタン ---- */
+
+.primary {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  background: var(--panel-hi);
+  color: #6d6d6d;
+  cursor: default;
+}
+
+/* ---- 解像度リスト ---- */
+
+.list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+}
+
+.row:first-child { border-top: 0; }
+.row.off { opacity: 0.45; }
+
+.row .label {
+  flex: 0 0 34px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.row .size {
+  flex: 1;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.row .badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge.checking { color: var(--muted); }
+.badge.ok { color: var(--ok); }
+.badge.missing { color: var(--warn); }
+
+.row button {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel-hi);
+  color: var(--text);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.row button:hover:not(:disabled) { border-color: #5a5a5a; }
+.row button:disabled { opacity: 0.4; cursor: default; }
+
+/* ---- ステータス ---- */
+
+.status {
+  margin: 8px 2px 0;
+  min-height: 15px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.status.error { color: var(--warn); }
+.status.done { color: var(--ok); }

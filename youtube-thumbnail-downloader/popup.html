@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main id="app">
+    <section class="head">
+      <div class="preview">
+        <img id="preview" alt="" hidden />
+        <div id="previewEmpty" class="preview-empty">?</div>
+      </div>
+      <div class="meta">
+        <div id="title" class="title">動画が見つかりません</div>
+        <div id="videoId" class="video-id">URL か動画 ID を貼り付けてください</div>
+      </div>
+    </section>
+
+    <input
+      id="urlInput"
+      class="url-input"
+      type="text"
+      spellcheck="false"
+      placeholder="別の動画: URL または 11 文字の ID を貼り付け"
+    />
+
+    <section class="options">
+      <div class="seg" id="formatSeg" role="group" aria-label="保存形式">
+        <button type="button" data-format="jpg" class="on">JPG</button>
+        <button type="button" data-format="webp">WebP</button>
+      </div>
+      <label class="chk">
+        <input type="checkbox" id="saveAs" />
+        保存先を毎回きく
+      </label>
+    </section>
+
+    <button id="best" class="primary" type="button" disabled>最高画質を保存</button>
+
+    <ul id="list" class="list"></ul>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+  </main>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
