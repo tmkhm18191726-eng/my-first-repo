@@ -8,6 +8,10 @@ type Props = {
   micLevel?: number;
   /** 親のスマホが接続しているか */
   parentOnline?: boolean;
+  /** ブラウザが相手の声の再生を止めている */
+  audioBlocked?: boolean;
+  /** 上の状態のときに、押して音を鳴らし直す */
+  onUnblockAudio?: () => void;
   /** 通話終了ボタン。通話中だけ押せる */
   onHangUp?: () => void;
   /** 待機をやめてトップに戻る */
@@ -46,6 +50,8 @@ export function StandbyScreen({
   micLive,
   micLevel = 0,
   parentOnline = false,
+  audioBlocked = false,
+  onUnblockAudio,
   onHangUp,
   onStopStandby,
 }: Props) {
@@ -70,6 +76,11 @@ export function StandbyScreen({
       ) : null}
 
       <div className="standby-footer">
+        {audioBlocked && onUnblockAudio ? (
+          <button type="button" className="btn btn-primary" onClick={onUnblockAudio}>
+            押して相手の声を出す
+          </button>
+        ) : null}
         {phase === "in-call" && onHangUp ? (
           <button type="button" className="btn btn-danger" onClick={onHangUp}>
             通話を終了する

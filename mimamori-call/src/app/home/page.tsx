@@ -1,12 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { PassphraseGate } from "@/components/PassphraseGate";
 import { StandbyScreen } from "@/components/StandbyScreen";
 import { StatusBanner } from "@/components/StatusBanner";
 import { isMicLive } from "@/lib/call/status";
 import { useCallSession } from "@/lib/call/useCallSession";
 
 export default function HomePcPage() {
+  // 合言葉を確かめてから中身を動かす。
+  // （確かめる前に通話のしくみを動かさないよう、中身は別の部品にしてある）
+  return (
+    <PassphraseGate>
+      <HomePcScreen />
+    </PassphraseGate>
+  );
+}
+
+function HomePcScreen() {
   const session = useCallSession("home");
 
   // 「待機開始」を押したあとは、ずっとこの全画面表示のまま
@@ -18,6 +29,8 @@ export default function HomePcPage() {
         micLive={isMicLive(session.phase)}
         micLevel={session.micLevel}
         parentOnline={session.parentOnline}
+        audioBlocked={session.audioBlocked}
+        onUnblockAudio={session.unblockAudio}
         onHangUp={session.hangUp}
         onStopStandby={session.stop}
       />

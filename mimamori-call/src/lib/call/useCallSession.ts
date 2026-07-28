@@ -38,6 +38,13 @@ export type CallSession = {
   signalingState: SignalingState;
   /** マイクが拾っている音の大きさ 0〜1 */
   micLevel: number;
+  /**
+   * 相手の声を鳴らすのをブラウザが止めている状態。
+   * iPhone で起きることがあるので、そのときは画面をタップしてもらう。
+   */
+  audioBlocked: boolean;
+  /** 上の状態のときに、利用者のタップで音を鳴らし直す */
+  unblockAudio: () => void;
   /** 待機や接続を始める */
   start: () => void;
   /** 親が自宅PCを呼び出す */
@@ -82,6 +89,7 @@ export function useCallSession(role: CallRole): CallSession {
   const [ended, setEnded] = useState(false);
   const [errorCode, setErrorCode] = useState<CallErrorCode | undefined>(undefined);
   const [micLevel, setMicLevel] = useState(0);
+  const [audioBlocked, setAudioBlocked] = useState(false);
 
   const clientRef = useRef<SignalingClient | null>(null);
   const peerRef = useRef<CallPeer | null>(null);
@@ -124,6 +132,16 @@ export function useCallSession(role: CallRole): CallSession {
     setConnected(false);
     setNegotiating(false);
     setCalling(false);
+    setAudioBlocked(false);
+  }, []);
+
+  /** 音が出ないとき、利用者のタップで鳴らし直す。 */
+  const unblockAudio = useCallback(() => {
+    audioContextRef.current = ensureAudioContext(audioContextRef.current);
+    void remoteAudioRef.current
+      ?.play()
+      .then(() => setAudioBlocked(false))
+      .catch(() => setAudioBlocked(true));
   }, []);
 
   /** 接続に時間がかかりすぎたときのための見張り。 */
@@ -152,9 +170,12 @@ export function useCallSession(role: CallRole): CallSession {
       onRemoteStream: (remote) => {
         const el = remoteAudio();
         el.srcObject = remote;
-        void el.play().catch(() => {
-          // 自動再生が止められた場合。利用者の操作後なので通常は起きない。
-        });
+        void el
+          .play()
+          .then(() => setAudioBlocked(false))
+          // iPhone がまれに自動再生を止めることがある。
+          // そのときは画面に「タップして音を出す」を出す。
+          .catch(() => setAudioBlocked(true));
       },
       onStateChange: (state) => {
         if (state === "connected") {
@@ -409,6 +430,8 @@ export function useCallSession(role: CallRole): CallSession {
     parentOnline,
     signalingState,
     micLevel,
+    audioBlocked,
+    unblockAudio,
     start,
     connect,
     hangUp,

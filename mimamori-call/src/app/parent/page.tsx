@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { CallControls } from "@/components/CallControls";
 import { MicIndicator } from "@/components/MicIndicator";
+import { PassphraseGate } from "@/components/PassphraseGate";
 import { StatusBanner } from "@/components/StatusBanner";
 import { isMicLive } from "@/lib/call/status";
 import { useCallSession } from "@/lib/call/useCallSession";
@@ -16,6 +17,16 @@ const HOME_PRESENCE_TEXT: Record<HomePresence, string> = {
 };
 
 export default function ParentPage() {
+  // 合言葉を確かめてから中身を動かす。
+  // （確かめる前に通話のしくみを動かさないよう、中身は別の部品にしてある）
+  return (
+    <PassphraseGate>
+      <ParentScreen />
+    </PassphraseGate>
+  );
+}
+
+function ParentScreen() {
   const session = useCallSession("parent");
   const { start } = session;
 
@@ -38,6 +49,17 @@ export default function ParentPage() {
         <p className="status-description">{HOME_PRESENCE_TEXT[session.homePresence]}</p>
       </div>
 
+      {session.audioBlocked ? (
+        <div className="card">
+          <button type="button" className="btn btn-primary" onClick={session.unblockAudio}>
+            タップして相手の声を出す
+          </button>
+          <p className="note">
+            ※ iPhone が音の再生を止めています。上のボタンを押すと相手の声が聞こえます。
+          </p>
+        </div>
+      ) : null}
+
       <div className="card">
         <MicIndicator live={isMicLive(session.phase)} level={session.micLevel} />
         <div style={{ marginTop: 16 }}>
@@ -47,9 +69,7 @@ export default function ParentPage() {
             onHangUp={session.hangUp}
           />
         </div>
-        <p className="note">
-          ※ 「接続する」を押すとマイクを使います。会話は録音されません。
-        </p>
+        <p className="note">※ 「接続する」を押すとマイクを使います。会話は録音されません。</p>
       </div>
 
       <div className="card">

@@ -8,6 +8,14 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
 
+  // 画面のファイル（npm run build で out フォルダに作られる）を、
+  // つなぎ役と同じアドレスから配る設定。
+  // スマホから見えるアドレスが1つになるので、外から使うときに迷わない。
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS"
+  },
+
   // つなぎ役（SignalRoom）を使えるようにする設定。
   // SIGNAL_ROOM という名前でプログラムから呼び出せます。
   "durable_objects": {
@@ -27,4 +35,7 @@
       "new_sqlite_classes": ["SignalRoom"]
     }
   ]
+
+  // 合言葉（ROOM_SECRET）は、ここには書きません。
+  // 手元では .dev.vars に、公開先では `npx wrangler secret put ROOM_SECRET` で登録します。
 }

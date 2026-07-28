@@ -1,3 +1,4 @@
+import { loadSecret } from "./room";
 import type { CallRole, ClientMessage, ServerMessage } from "./types";
 
 /**
@@ -26,18 +27,23 @@ const PING_INTERVAL = 25000;
  * 3. それ以外は、画面を配っているのと同じ場所の `/ws` へ
  */
 export function signalUrl(role: CallRole): string {
-  const configured = process.env.NEXT_PUBLIC_SIGNAL_URL;
-  if (configured) {
-    return `${configured.replace(/\/$/, "")}/ws?role=${role}`;
-  }
+  const base = (() => {
+    const configured = process.env.NEXT_PUBLIC_SIGNAL_URL;
+    if (configured) return configured.replace(/\/$/, "");
 
-  const { protocol, hostname, port } = window.location;
-  if (port === "3000" && (hostname === "localhost" || hostname === "127.0.0.1")) {
-    return `ws://${hostname}:8787/ws?role=${role}`;
-  }
+    const { protocol, hostname, port } = window.location;
+    if (port === "3000" && (hostname === "localhost" || hostname === "127.0.0.1")) {
+      return `ws://${hostname}:8787`;
+    }
+    const wsProtocol = protocol === "https:" ? "wss:" : "ws:";
+    return `${wsProtocol}//${window.location.host}`;
+  })();
 
-  const wsProtocol = protocol === "https:" ? "wss:" : "ws:";
-  return `${wsProtocol}//${window.location.host}/ws?role=${role}`;
+  const url = new URL(`${base}/ws`);
+  url.searchParams.set("role", role);
+  const secret = loadSecret();
+  if (secret) url.searchParams.set("secret", secret);
+  return url.toString();
 }
 
 export type SignalingHandlers = {

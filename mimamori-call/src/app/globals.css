@@ -356,6 +356,34 @@ body {
   width: 100%;
 }
 
+/* ---- 入力欄 ---- */
+
+.text-input {
+  display: block;
+  width: 100%;
+  /* iPhone で入力欄に触れたとき画面が拡大しないよう、16px 以上にする */
+  font-size: 20px;
+  font-family: inherit;
+  padding: 14px 16px;
+  margin: 8px 0 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.text-input:focus {
+  outline: 3px solid var(--tone-info);
+  outline-offset: 1px;
+}
+
+.input-error {
+  color: var(--tone-danger);
+  font-weight: 700;
+  margin: -8px 0 16px;
+  font-size: 15px;
+}
+
 /* ---- 注意書き ---- */
 
 .note {
