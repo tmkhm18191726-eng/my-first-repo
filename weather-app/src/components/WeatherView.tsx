@@ -6,6 +6,7 @@ import { SpeechBubble } from './SpeechBubble'
 import { WeatherIcon } from './WeatherIcon'
 import { TodayTomorrowCard } from './TodayTomorrowCard'
 import { HourlyStrip } from './HourlyStrip'
+import { UmbrellaIcon } from './CuteIcons'
 
 interface Props {
   forecast: Forecast | null
@@ -107,6 +108,9 @@ export function WeatherView({
             <div className="temp-pills">
               <span className="pill pill-max">最高 {today.maxTemp}°</span>
               <span className="pill pill-min">最低 {today.minTemp}°</span>
+              <span className="pill pill-rain">
+                <UmbrellaIcon size={15} /> {today.precipitationProbability}%
+              </span>
             </div>
           </div>
           <div className="weather-side">
@@ -114,7 +118,7 @@ export function WeatherView({
               <span aria-hidden="true">♢</span>
               <span className="heart" aria-hidden="true">♥</span>
             </div>
-            {tomorrow && <TodayTomorrowCard today={today} tomorrow={tomorrow} />}
+            {tomorrow && <TodayTomorrowCard tomorrow={tomorrow} />}
           </div>
         </div>
       )}
