@@ -1316,6 +1316,21 @@
     width: fit-content;
   }
 
+  .weather-view .temp-pills {
+    flex-wrap: nowrap;
+    gap: 5px;
+    max-width: none;
+  }
+
+  .weather-view .pill {
+    padding: 5px 7px;
+    font-size: 10px;
+  }
+
+  .weather-view .pill-rain {
+    gap: 2px;
+  }
+
   .weather-view .weather-headline .temperature {
     font-size: clamp(54px, 16vw, 66px);
   }
