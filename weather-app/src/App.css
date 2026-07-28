@@ -38,6 +38,7 @@
   background-repeat: no-repeat;
   color: var(--ink);
   overflow: hidden;
+  touch-action: none;
   animation: weather-enter 0.28s ease-out;
 }
 
@@ -303,28 +304,6 @@
   display: flex;
   flex-direction: column;
   gap: 9px;
-}
-
-.weather-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.weather-actions span {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 253, 250, 0.78);
-  color: #9d8d86;
-  font-size: 17px;
-  backdrop-filter: blur(10px);
-}
-
-.weather-actions .heart {
-  color: var(--accent);
 }
 
 .hourly-strip .hourly-card {

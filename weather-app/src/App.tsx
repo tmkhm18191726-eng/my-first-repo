@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { WeatherView } from './components/WeatherView'
 import { PhotoManager } from './components/PhotoManager'
 import { ForecastView } from './components/ForecastView'
@@ -21,12 +21,17 @@ function App() {
     toggle: toggleTemperatureBadge,
   } = useTemperatureBadge(forecast?.current.temperature)
   const [tab, setTab] = useState<TabKey>('weather')
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const category = forecast?.current.category ?? 'sunny'
 
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0 })
+  }, [tab])
+
   return (
     <div className="app">
-      <div className="app-content">
+      <div className="app-content" ref={contentRef}>
         {tab === 'weather' && (
           <WeatherView
             forecast={forecast}

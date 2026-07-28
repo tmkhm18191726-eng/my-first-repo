@@ -46,6 +46,7 @@ export function WeatherView({
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     touchStart.current = { x: event.clientX, y: event.clientY }
+    event.currentTarget.setPointerCapture(event.pointerId)
   }
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
@@ -60,11 +61,16 @@ export function WeatherView({
     }
   }
 
+  const handlePointerCancel = () => {
+    touchStart.current = null
+  }
+
   return (
     <div
       className="weather-view has-photo"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
       style={{
         backgroundImage: `linear-gradient(180deg, rgba(255,250,246,0.9) 0%, rgba(255,250,246,0.42) 24%, rgba(34,25,20,0.02) 52%, rgba(34,25,20,0.5) 100%), ${background}`,
       }}
@@ -106,10 +112,6 @@ export function WeatherView({
             <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
           </div>
           <div className="weather-side">
-            <div className="weather-actions" aria-label="クイック操作">
-              <span aria-hidden="true">♢</span>
-              <span className="heart" aria-hidden="true">♥</span>
-            </div>
             {tomorrow && <TodayTomorrowCard today={today} tomorrow={tomorrow} />}
           </div>
         </div>
