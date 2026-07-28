@@ -104,13 +104,15 @@ export function WeatherView({
               <span className="temperature">{weather.temperature}°</span>
               <WeatherIcon category={weather.category} size={44} />
             </div>
-            <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
-            <div className="temp-pills">
-              <span className="pill pill-max">最高 {today.maxTemp}°</span>
-              <span className="pill pill-min">最低 {today.minTemp}°</span>
-              <span className="pill pill-rain">
-                <UmbrellaIcon size={15} /> {today.precipitationProbability}%
-              </span>
+            <div className="today-condition-row">
+              <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
+              <div className="temp-pills">
+                <span className="pill pill-max">最高 {today.maxTemp}°</span>
+                <span className="pill pill-min">最低 {today.minTemp}°</span>
+                <span className="pill pill-rain">
+                  <UmbrellaIcon size={15} /> {today.precipitationProbability}%
+                </span>
+              </div>
             </div>
           </div>
           <div className="weather-side">

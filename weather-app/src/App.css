@@ -133,6 +133,10 @@
   margin: 5px 0 13px;
 }
 
+.today-condition-row {
+  min-width: 0;
+}
+
 .temp-pills {
   display: flex;
   flex-wrap: wrap;
@@ -1305,7 +1309,24 @@
 
   .weather-view .tt-card {
     display: block;
-    padding: 9px 10px;
+    padding: 9px 8px;
+    overflow: hidden;
+  }
+
+  .weather-view .tt-row {
+    gap: 2px;
+    font-size: 10.5px;
+  }
+
+  .weather-view .tt-row .weather-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .weather-view .tt-precip {
+    gap: 1px;
+    font-size: 9px;
+    flex-shrink: 0;
   }
 
   .weather-view .weather-side {
@@ -1316,15 +1337,31 @@
     width: fit-content;
   }
 
+  .weather-view .today-condition-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: max-content;
+  }
+
+  .weather-view .weather-top-left .description {
+    margin: 5px 0 0;
+    white-space: nowrap;
+  }
+
   .weather-view .temp-pills {
     flex-wrap: nowrap;
     gap: 5px;
     max-width: none;
+    padding-top: 5px;
   }
 
   .weather-view .pill {
-    padding: 5px 7px;
+    padding: 0;
     font-size: 10px;
+    background: transparent;
+    border: 0;
+    backdrop-filter: none;
   }
 
   .weather-view .pill-rain {
