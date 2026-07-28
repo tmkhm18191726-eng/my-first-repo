@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { fetchForecast, getCurrentPosition } from '../lib/weather'
+import { fetchForecast, fetchLocationLabel, getCurrentPosition } from '../lib/weather'
 import type { Forecast } from '../types'
 
 interface WeatherState {
@@ -21,8 +21,12 @@ export function useWeather() {
     setState((prev) => ({ ...prev, loading: true, error: null }))
     try {
       const position = await getCurrentPosition()
-      const forecast = await fetchForecast(position.coords.latitude, position.coords.longitude)
-      setState({ forecast, loading: false, error: null, locationLabel: '現在地' })
+      const { latitude, longitude } = position.coords
+      const [forecast, locationLabel] = await Promise.all([
+        fetchForecast(latitude, longitude),
+        fetchLocationLabel(latitude, longitude).catch(() => '現在地'),
+      ])
+      setState({ forecast, loading: false, error: null, locationLabel })
     } catch (err) {
       if (err instanceof GeolocationPositionError) {
         try {

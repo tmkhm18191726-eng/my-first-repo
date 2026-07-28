@@ -65,6 +65,25 @@ export function getCurrentPosition(): Promise<GeolocationPosition> {
   })
 }
 
+interface ReverseGeocodeResponse {
+  city?: string
+  locality?: string
+  principalSubdivision?: string
+}
+
+export async function fetchLocationLabel(latitude: number, longitude: number): Promise<string> {
+  const url = new URL('https://api.bigdatacloud.net/data/reverse-geocode-client')
+  url.searchParams.set('latitude', latitude.toString())
+  url.searchParams.set('longitude', longitude.toString())
+  url.searchParams.set('localityLanguage', 'ja')
+
+  const res = await fetch(url.toString())
+  if (!res.ok) return '現在地'
+
+  const data = (await res.json()) as ReverseGeocodeResponse
+  return data.city || data.locality || data.principalSubdivision || '現在地'
+}
+
 const HOUR_FORMATTER = new Intl.DateTimeFormat('ja-JP', { hour: '2-digit', hour12: false })
 const WEEKDAY_FORMATTER = new Intl.DateTimeFormat('ja-JP', { weekday: 'short' })
 
