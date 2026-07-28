@@ -1,9 +1,10 @@
 interface Props {
   lines: string[]
   photoUrl: string
+  photoPosition?: string
 }
 
-export function SpeechBubble({ lines, photoUrl }: Props) {
+export function SpeechBubble({ lines, photoUrl, photoPosition }: Props) {
   return (
     <div className="speech-bubble">
       <span className="speech-bubble-badge">♥</span>
@@ -16,7 +17,10 @@ export function SpeechBubble({ lines, photoUrl }: Props) {
       </div>
       <div
         className="speech-bubble-photo"
-        style={{ backgroundImage: `url(${photoUrl})` }}
+        style={{
+          backgroundImage: `url(${photoUrl})`,
+          backgroundPosition: photoPosition,
+        }}
         role="img"
         aria-label="思い出の写真"
       >

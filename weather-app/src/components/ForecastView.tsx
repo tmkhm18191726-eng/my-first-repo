@@ -17,7 +17,7 @@ export function ForecastView({ forecast, locationLabel, photoUrl, onBack }: Prop
   const gestureStart = useRef<{ x: number; y: number } | null>(null)
   const today = forecast.daily[0]
   const tomorrow = forecast.daily[1]
-  const heroPhotoUrl = photoUrl ?? `${import.meta.env.BASE_URL}default-memory-child.png`
+  const heroPhotoUrl = photoUrl ?? `${import.meta.env.BASE_URL}default-memory-placeholder.png`
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     gestureStart.current = { x: event.clientX, y: event.clientY }

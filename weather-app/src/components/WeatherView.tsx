@@ -34,7 +34,7 @@ export function WeatherView({
   const weather = forecast?.current ?? null
   const today = forecast?.daily[0]
   const tomorrow = forecast?.daily[1]
-  const defaultPhotoUrl = `${import.meta.env.BASE_URL}default-memory-child.png`
+  const defaultPhotoUrl = `${import.meta.env.BASE_URL}default-memory-placeholder.png`
   const activePhotoUrl = photoUrl ?? defaultPhotoUrl
   const background = `url(${activePhotoUrl})`
 
@@ -126,7 +126,11 @@ export function WeatherView({
 
       {forecast && !loading && !error && (
         <div className="weather-bottom">
-          <SpeechBubble lines={getSpeechLines(forecast, name)} photoUrl={activePhotoUrl} />
+          <SpeechBubble
+            lines={getSpeechLines(forecast, name)}
+            photoUrl={activePhotoUrl}
+            photoPosition={photoUrl ? undefined : 'center 64%'}
+          />
           <button className="detail-hint" onClick={onOpenForecast}>
             <span aria-hidden="true">⌃</span> 上にスライドで詳しい天気
           </button>
