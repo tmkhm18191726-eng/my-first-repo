@@ -1,0 +1,13 @@
+age_group,age_label,gender,gender_label,viewer_percentage
+age18-24,18-24歳,female,女性,7.48
+age18-24,18-24歳,male,男性,6.52
+age25-34,25-34歳,female,女性,18.64
+age25-34,25-34歳,male,男性,15.36
+age35-44,35-44歳,female,女性,10.99
+age35-44,35-44歳,male,男性,15.01
+age45-54,45-54歳,female,女性,7.71
+age45-54,45-54歳,male,男性,7.29
+age55-64,55-64歳,female,女性,4.29
+age55-64,55-64歳,male,男性,3.71
+age65-,65歳以上,female,女性,1.39
+age65-,65歳以上,male,男性,1.61

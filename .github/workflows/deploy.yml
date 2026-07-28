@@ -1,12 +1,10 @@
 name: Deploy weather-app to GitHub Pages
 
+# weather-app の Pages デプロイは youtube-report.yml に統合しました。
+# 同じ Pages サイトに2つのワークフローがデプロイすると、後から走ったほうが
+# 相手の成果物を丸ごと上書きしてしまうためです。
+# このワークフローは手動実行時のみ動きます（weather-app だけを配信したい場合の退避用）。
 on:
-  push:
-    branches:
-      - claude/bgm-podcast-setup-niybdx
-    paths:
-      - 'weather-app/**'
-      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
