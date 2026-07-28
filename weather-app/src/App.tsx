@@ -7,6 +7,7 @@ import { useWeather } from './hooks/useWeather'
 import { usePhotos } from './hooks/usePhotos'
 import { usePersonName } from './hooks/usePersonName'
 import { useHomeSettings } from './hooks/useHomeSettings'
+import { useTemperatureBadge } from './hooks/useTemperatureBadge'
 import './App.css'
 
 function App() {
@@ -14,6 +15,11 @@ function App() {
   const { urls, setPhoto, removePhoto } = usePhotos()
   const { name, setName } = usePersonName()
   const { showHomeHourly, setShowHomeHourly } = useHomeSettings()
+  const {
+    enabled: temperatureBadgeEnabled,
+    message: temperatureBadgeMessage,
+    toggle: toggleTemperatureBadge,
+  } = useTemperatureBadge(forecast?.current.temperature)
   const [tab, setTab] = useState<TabKey>('weather')
 
   const category = forecast?.current.category ?? 'sunny'
@@ -92,6 +98,25 @@ function App() {
                 <span />
               </button>
             </section>
+            <section className="settings-card">
+              <div className="settings-copy">
+                <strong>アイコンに現在気温を表示</strong>
+                <span>
+                  アプリを開いた時の気温を、ホーム画面の赤い数字に表示します
+                </span>
+              </div>
+              <button
+                type="button"
+                className={`settings-switch${temperatureBadgeEnabled ? ' on' : ''}`}
+                role="switch"
+                aria-checked={temperatureBadgeEnabled}
+                aria-label="アイコンに現在気温を表示"
+                onClick={() => void toggleTemperatureBadge()}
+              >
+                <span />
+              </button>
+            </section>
+            <p className="settings-badge-status">{temperatureBadgeMessage}</p>
             <p className="settings-note">この設定は、この端末の中だけに保存されます。</p>
           </div>
         )}

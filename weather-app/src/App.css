@@ -1219,6 +1219,10 @@
   box-shadow: var(--shadow-card);
 }
 
+.settings-card + .settings-card {
+  margin-top: 12px;
+}
+
 .settings-copy {
   flex: 1;
   display: flex;
@@ -1270,6 +1274,13 @@
   margin: 14px 4px 0;
   color: var(--muted);
   font-size: 11px;
+}
+
+.settings-badge-status {
+  margin: 10px 4px 0;
+  color: var(--accent-dark);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 @media (max-width: 380px) {
