@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アニメーション実験室 — HTML + JavaScript</title>
+<style>
+  :root {
+    --bg: #0b0d17;
+    --bg-card: #141829;
+    --line: #262c45;
+    --text: #e8ebf5;
+    --muted: #8b93b0;
+    --accent: #6ea8ff;
+    --accent-2: #ff7ac4;
+    --accent-3: #62e6c4;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 20px 72px;
+  }
+
+  /* ---------- ヒーロー ---------- */
+  .hero { margin-bottom: 40px; }
+
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: clamp(28px, 5vw, 44px);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: hue-slide 8s linear infinite;
+  }
+
+  @keyframes hue-slide {
+    to { background-position: 300% 0; }
+  }
+
+  .hero p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 62ch;
+  }
+
+  /* ---------- カード ---------- */
+  .grid {
+    display: grid;
+    /* 広い画面では 2 列、狭い画面では 1 列に自動で切り替わる */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .card h2 {
+    margin: 0;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--bg);
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+  .badge.b2 { background: var(--accent-2); }
+  .badge.b3 { background: var(--accent-3); }
+  .badge.b4 { background: #ffca6e; }
+
+  .card p.note {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* 各デモの舞台 */
+  .stage {
+    position: relative;
+    background: #0a0c16;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    height: 220px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+
+  /* ---------- コントロール ---------- */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  button {
+    font: inherit;
+    font-size: 13px;
+    color: var(--text);
+    background: #1e2440;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  button:hover { background: #28304f; border-color: #3a4368; }
+  button:active { transform: translateY(1px); }
+
+  label.range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  input[type="range"] {
+    accent-color: var(--accent);
+    width: 110px;
+  }
+
+  .readout {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* ---------- 1. CSS のみ ---------- */
+  .css-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+  }
+
+  .ring {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 25%, var(--accent) 90%, var(--accent-2));
+    /* 中央をくり抜いてリングにする */
+    mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
+    animation: spin 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(1turn); } }
+
+  .bars { display: flex; gap: 6px; align-items: flex-end; height: 40px; }
+
+  .bars i {
+    display: block;
+    width: 8px;
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(var(--accent-3), var(--accent));
+    transform-origin: bottom;
+    animation: bounce 1.1s ease-in-out infinite;
+  }
+  /* 1本ずつ遅らせて「波」に見せる */
+  .bars i:nth-child(1) { animation-delay: 0s; }
+  .bars i:nth-child(2) { animation-delay: 0.1s; }
+  .bars i:nth-child(3) { animation-delay: 0.2s; }
+  .bars i:nth-child(4) { animation-delay: 0.3s; }
+  .bars i:nth-child(5) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 100% { transform: scaleY(0.25); opacity: 0.5; }
+    50%      { transform: scaleY(1);    opacity: 1; }
+  }
+
+  /* ---------- 2. Web Animations API ---------- */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 52px);
+    grid-auto-rows: 52px;
+    gap: 10px;
+  }
+
+  .tiles span {
+    border-radius: 12px;
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    box-shadow: 0 6px 18px rgba(110, 168, 255, 0.18);
+  }
+
+  /* ---------- 3. Canvas ---------- */
+  .stage canvas { width: 100%; height: 100%; display: block; }
+
+  .hint {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    background: rgba(10, 12, 22, 0.8);
+    border-radius: 6px;
+    padding: 2px 7px;
+    pointer-events: none;
+  }
+
+  /* ---------- 4. SVG ---------- */
+  .stage svg { width: 100%; height: 100%; }
+
+  .track { fill: none; stroke: #222a45; stroke-width: 3; }
+
+  .stroke {
+    fill: none;
+    stroke: url(#grad);
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+
+  footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background: #1c2138;
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+
+  /* 「視差効果を減らす」設定を尊重する */
+  @media (prefers-reduced-motion: reduce) {
+    .hero h1, .ring, .bars i { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>アニメーション実験室</h1>
+    <p>
+      素の HTML + CSS + JavaScript だけで作った 4 種類のアニメーション。
+      ライブラリもビルドも使っていないので、このファイルをブラウザで開くだけで動きます。
+    </p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ============ 1. CSS だけ ============ -->
+    <section class="card">
+      <h2><span class="badge">1</span> CSS キーフレーム</h2>
+      <p class="note">
+        JavaScript ゼロ。<code>@keyframes</code> と <code>animation-delay</code> だけで
+        ローダーと波打つバーを作っています。
+      </p>
+      <div class="stage">
+        <div class="css-demo">
+          <div class="ring"></div>
+          <div class="bars"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="css-toggle">一時停止</button>
+        <span class="readout">CSS の <code>animation-play-state</code> を切り替えます</span>
+      </div>
+    </section>
+
+    <!-- ============ 2. Web Animations API ============ -->
+    <section class="card">
+      <h2><span class="badge b2">2</span> Web Animations API</h2>
+      <p class="note">
+        JavaScript の <code>element.animate()</code> で作ったアニメーションは、
+        あとから再生・逆再生・速度変更ができます。
+      </p>
+      <div class="stage">
+        <div class="tiles" id="tiles"></div>
+      </div>
+      <div class="controls">
+        <button id="waapi-play">一時停止</button>
+        <button id="waapi-reverse">逆再生</button>
+        <label class="range">
+          速度
+          <input id="waapi-speed" type="range" min="0.2" max="3" step="0.1" value="1">
+          <span class="readout" id="waapi-speed-out">1.0x</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ============ 3. Canvas + requestAnimationFrame ============ -->
+    <section class="card">
+      <h2><span class="badge b3">3</span> Canvas 描画</h2>
+      <p class="note">
+        <code>requestAnimationFrame</code> で 1 フレームずつ自分で描くので、
+        粒子どうしの距離で線を引くような自由な表現ができます。マウス（指）を近づけてみてください。
+      </p>
+      <div class="stage">
+        <canvas id="particles"></canvas>
+        <span class="hint" id="fps">-- fps</span>
+      </div>
+      <div class="controls">
+        <button id="canvas-toggle">一時停止</button>
+        <label class="range">
+          粒子数
+          <input id="canvas-count" type="range" min="20" max="180" step="10" value="80">
+          <span class="readout" id="canvas-count-out">80</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ============ 4. SVG パス ============ -->
+    <section class="card">
+      <h2><span class="badge b4">4</span> SVG パスを描く</h2>
+      <p class="note">
+        <code>stroke-dashoffset</code> で線が伸びていく表現。
+        <code>getPointAtLength()</code> を使って、先端に点を走らせています。
+      </p>
+      <div class="stage">
+        <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#62e6c4"/>
+              <stop offset="50%"  stop-color="#6ea8ff"/>
+              <stop offset="100%" stop-color="#ff7ac4"/>
+            </linearGradient>
+          </defs>
+          <path id="track" class="track"
+            d="M 20 150 C 70 150, 70 50, 120 60 S 190 170, 240 120 S 290 40, 300 55"/>
+          <path id="stroke" class="stroke"
+            d="M 20 150 C 70 150, 70 50, 120 60 S 190 170, 240 120 S 290 40, 300 55"/>
+          <circle id="head" r="6" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="controls">
+        <button id="svg-toggle">一時停止</button>
+        <label class="range">
+          進捗
+          <input id="svg-scrub" type="range" min="0" max="1000" step="1" value="0">
+          <span class="readout" id="svg-out">0%</span>
+        </label>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    4 つとも仕組みが違います。
+    <strong>CSS</strong> は書くのが一番速く、
+    <strong>WAAPI</strong> は JS から細かく操作でき、
+    <strong>Canvas</strong> は数千個の粒子でも軽く、
+    <strong>SVG</strong> は拡大しても輪郭がボケません。
+    作りたい絵に合わせて選びます。
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+
+// 「視差効果を減らす」を ON にしている人には動きを抑える
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ==========================================================
+   1. CSS キーフレーム — 再生状態だけ JS から触る
+   ========================================================== */
+(function cssDemo() {
+  const btn = document.getElementById("css-toggle");
+  const targets = document.querySelectorAll(".ring, .bars i");
+  let running = true;
+
+  btn.addEventListener("click", () => {
+    running = !running;
+    targets.forEach((el) => {
+      el.style.animationPlayState = running ? "running" : "paused";
+    });
+    btn.textContent = running ? "一時停止" : "再生";
+  });
+})();
+
+/* ==========================================================
+   2. Web Animations API — animate() が返す Animation を操作する
+   ========================================================== */
+(function waapiDemo() {
+  const box = document.getElementById("tiles");
+  const playBtn = document.getElementById("waapi-play");
+  const reverseBtn = document.getElementById("waapi-reverse");
+  const speed = document.getElementById("waapi-speed");
+  const speedOut = document.getElementById("waapi-speed-out");
+
+  const COUNT = 9;
+  const animations = [];
+
+  for (let i = 0; i < COUNT; i++) {
+    const tile = document.createElement("span");
+    box.appendChild(tile);
+
+    const anim = tile.animate(
+      [
+        { transform: "translateY(0) scale(1) rotate(0deg)", opacity: 1 },
+        { transform: "translateY(-16px) scale(0.78) rotate(45deg)", opacity: 0.45 },
+        { transform: "translateY(0) scale(1) rotate(0deg)", opacity: 1 },
+      ],
+      {
+        duration: 1600,
+        // 中央から外へ広がるように、距離に応じて遅らせる
+        delay: (Math.abs(1 - (i % 3)) + Math.abs(1 - Math.floor(i / 3))) * 120,
+        iterations: Infinity,
+        easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      }
+    );
+
+    animations.push(anim);
+  }
+
+  if (reduceMotion) animations.forEach((a) => a.pause());
+  let playing = !reduceMotion;
+  playBtn.textContent = playing ? "一時停止" : "再生";
+
+  playBtn.addEventListener("click", () => {
+    playing = !playing;
+    animations.forEach((a) => (playing ? a.play() : a.pause()));
+    playBtn.textContent = playing ? "一時停止" : "再生";
+  });
+
+  reverseBtn.addEventListener("click", () => {
+    animations.forEach((a) => a.reverse());
+    playing = true;
+    playBtn.textContent = "一時停止";
+  });
+
+  speed.addEventListener("input", () => {
+    const rate = Number(speed.value);
+    // 逆再生中は符号を保ったまま速さだけ変える
+    animations.forEach((a) => {
+      a.playbackRate = a.playbackRate < 0 ? -rate : rate;
+    });
+    speedOut.textContent = rate.toFixed(1) + "x";
+  });
+})();
+
+/* ==========================================================
+   3. Canvas + requestAnimationFrame — 粒子と近傍線
+   ========================================================== */
+(function canvasDemo() {
+  const canvas = document.getElementById("particles");
+  const ctx = canvas.getContext("2d");
+  const toggle = document.getElementById("canvas-toggle");
+  const countInput = document.getElementById("canvas-count");
+  const countOut = document.getElementById("canvas-count-out");
+  const fpsOut = document.getElementById("fps");
+
+  let width = 0;
+  let height = 0;
+  let particles = [];
+  const pointer = { x: -999, y: -999, active: false };
+
+  // Retina でもぼやけないよう、実ピクセル数を devicePixelRatio 倍にする
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function makeParticles(n) {
+    particles = Array.from({ length: n }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 1.8 + 0.9,
+    }));
+  }
+
+  function step(dt) {
+    for (const p of particles) {
+      // ポインタが近いとゆるく引き寄せられる
+      if (pointer.active) {
+        const dx = pointer.x - p.x;
+        const dy = pointer.y - p.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 120 * 120 && d2 > 1) {
+          const f = 12 / d2;
+          p.vx += dx * f;
+          p.vy += dy * f;
+        }
+      }
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      // 端で跳ね返す
+      if (p.x < 0 || p.x > width) { p.vx *= -1; p.x = Math.max(0, Math.min(width, p.x)); }
+      if (p.y < 0 || p.y > height) { p.vy *= -1; p.y = Math.max(0, Math.min(height, p.y)); }
+
+      // 加速しっぱなしにならないよう少しずつ減速
+      p.vx *= 0.995;
+      p.vy *= 0.995;
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    // 近い粒子どうしを線で結ぶ（近いほど濃く）
+    const MAX = 92;
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i];
+        const b = particles[j];
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const d = Math.hypot(dx, dy);
+        if (d < MAX) {
+          ctx.strokeStyle = `rgba(110, 168, 255, ${(1 - d / MAX) * 0.35})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    ctx.fillStyle = "#cfe0ff";
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  let running = !reduceMotion;
+  let rafId = null;
+  let last = 0;
+  let fpsStart = 0;
+  let fpsFrames = 0;
+
+  function loop(now) {
+    rafId = requestAnimationFrame(loop);
+    if (!last) last = now;
+    // 60fps を 1.0 とした時間差。タブ復帰時の大ジャンプは 3 で頭打ちにする
+    const dt = Math.min((now - last) / 16.67, 3);
+    last = now;
+
+    step(dt);
+    draw();
+
+    // 30 フレームごとに平均 fps を出す
+    fpsFrames++;
+    const elapsed = now - fpsStart;
+    if (fpsFrames >= 30 && elapsed > 0) {
+      fpsOut.textContent = Math.round((fpsFrames * 1000) / elapsed) + " fps";
+      fpsFrames = 0;
+      fpsStart = now;
+    }
+  }
+
+  function start() {
+    if (rafId !== null) return;
+    last = 0;
+    fpsStart = performance.now();
+    fpsFrames = 0;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function stop() {
+    if (rafId === null) return;
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  toggle.addEventListener("click", () => {
+    running = !running;
+    running ? start() : stop();
+    toggle.textContent = running ? "一時停止" : "再生";
+  });
+
+  countInput.addEventListener("input", () => {
+    countOut.textContent = countInput.value;
+    makeParticles(Number(countInput.value));
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = e.clientX - rect.left;
+    pointer.y = e.clientY - rect.top;
+    pointer.active = true;
+  });
+  canvas.addEventListener("pointerleave", () => { pointer.active = false; });
+
+  window.addEventListener("resize", () => {
+    resize();
+    makeParticles(Number(countInput.value));
+  });
+
+  // 画面外にある間は回さない（電池とCPUの節約）
+  new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting && running) start();
+      else stop();
+    }
+  }, { threshold: 0.05 }).observe(canvas);
+
+  resize();
+  makeParticles(Number(countInput.value));
+  draw();
+  if (!running) toggle.textContent = "再生";
+})();
+
+/* ==========================================================
+   4. SVG パス — dashoffset で線を伸ばし、先端に点を置く
+   ========================================================== */
+(function svgDemo() {
+  const path = document.getElementById("stroke");
+  const head = document.getElementById("head");
+  const toggle = document.getElementById("svg-toggle");
+  const scrub = document.getElementById("svg-scrub");
+  const out = document.getElementById("svg-out");
+
+  const length = path.getTotalLength();
+  path.style.strokeDasharray = String(length);
+
+  let progress = 0;     // 0 → 1
+  let running = !reduceMotion;
+  let rafId = null;
+  let last = 0;
+
+  function render() {
+    // dashoffset を length → 0 に動かすと、線が描かれていくように見える
+    path.style.strokeDashoffset = String(length * (1 - progress));
+
+    const pt = path.getPointAtLength(length * progress);
+    head.setAttribute("cx", pt.x);
+    head.setAttribute("cy", pt.y);
+    head.style.opacity = progress > 0.001 ? "1" : "0";
+
+    out.textContent = Math.round(progress * 100) + "%";
+    scrub.value = String(Math.round(progress * 1000));
+  }
+
+  function loop(now) {
+    rafId = requestAnimationFrame(loop);
+    if (!last) last = now;
+    const dt = (now - last) / 1000;
+    last = now;
+
+    progress += dt / 2.6;              // 2.6 秒で一周
+    if (progress > 1.15) progress = 0; // 描き終わったら少し間を置いて最初から
+    render();
+  }
+
+  function start() {
+    if (rafId !== null) return;
+    last = 0;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function stop() {
+    if (rafId === null) return;
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  toggle.addEventListener("click", () => {
+    running = !running;
+    running ? start() : stop();
+    toggle.textContent = running ? "一時停止" : "再生";
+  });
+
+  // スライダーを動かしたら手動モードに切り替える
+  scrub.addEventListener("input", () => {
+    if (running) {
+      running = false;
+      stop();
+      toggle.textContent = "再生";
+    }
+    progress = Number(scrub.value) / 1000;
+    render();
+  });
+
+  render();
+  if (running) start();
+  else toggle.textContent = "再生";
+})();
+</script>
+</body>
+</html>
