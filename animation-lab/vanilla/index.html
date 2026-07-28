@@ -81,23 +81,21 @@
   .card h2 {
     margin: 0;
     font-size: 17px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    letter-spacing: -0.01em;
   }
 
-  .badge {
-    font-size: 11px;
+  /* 何の上に絵を描いているか（描画先）を示すラベル */
+  .surface {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    color: var(--bg);
-    background: var(--accent);
-    border-radius: 999px;
-    padding: 2px 9px;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+    margin-bottom: -8px;
   }
-  .badge.b2 { background: var(--accent-2); }
-  .badge.b3 { background: var(--accent-3); }
-  .badge.b4 { background: #ffca6e; }
+  .surface.s2 { color: var(--accent-2); }
+  .surface.s3 { color: var(--accent-3); }
+  .surface.s4 { color: #ffca6e; }
 
   .card p.note {
     margin: 0;
@@ -282,7 +280,8 @@
 
     <!-- ============ 1. CSS だけ ============ -->
     <section class="card">
-      <h2><span class="badge">1</span> CSS キーフレーム</h2>
+      <div class="surface">DOM 要素</div>
+      <h2>CSS キーフレーム</h2>
       <p class="note">
         JavaScript ゼロ。<code>@keyframes</code> と <code>animation-delay</code> だけで
         ローダーと波打つバーを作っています。
@@ -301,7 +300,8 @@
 
     <!-- ============ 2. Web Animations API ============ -->
     <section class="card">
-      <h2><span class="badge b2">2</span> Web Animations API</h2>
+      <div class="surface s2">DOM 要素</div>
+      <h2>Web Animations API</h2>
       <p class="note">
         JavaScript の <code>element.animate()</code> で作ったアニメーションは、
         あとから再生・逆再生・速度変更ができます。
@@ -322,7 +322,8 @@
 
     <!-- ============ 3. Canvas + requestAnimationFrame ============ -->
     <section class="card">
-      <h2><span class="badge b3">3</span> Canvas 描画</h2>
+      <div class="surface s3">CANVAS</div>
+      <h2>Canvas 描画</h2>
       <p class="note">
         <code>requestAnimationFrame</code> で 1 フレームずつ自分で描くので、
         粒子どうしの距離で線を引くような自由な表現ができます。マウス（指）を近づけてみてください。
@@ -343,7 +344,8 @@
 
     <!-- ============ 4. SVG パス ============ -->
     <section class="card">
-      <h2><span class="badge b4">4</span> SVG パスを描く</h2>
+      <div class="surface s4">SVG</div>
+      <h2>SVG パスを描く</h2>
       <p class="note">
         <code>stroke-dashoffset</code> で線が伸びていく表現。
         <code>getPointAtLength()</code> を使って、先端に点を走らせています。
