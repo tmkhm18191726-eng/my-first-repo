@@ -1,11 +1,13 @@
-name: Deploy weather-app to GitHub Pages
+name: Deploy apps to GitHub Pages
 
 on:
   push:
     branches:
       - claude/bgm-podcast-setup-niybdx
+      - claude/nextuber-app-dev-r4446j
     paths:
       - 'weather-app/**'
+      - 'yt-research/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -21,24 +23,41 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: weather-app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: weather-app/package-lock.json
+          cache-dependency-path: |
+            weather-app/package-lock.json
+            yt-research/package-lock.json
+
+      # おもいで天気予報 -> サイトのルート
       - run: npm ci
+        working-directory: weather-app
       - run: npm run build
+        working-directory: weather-app
+
+      # YouTube リサーチ -> /research/
+      - run: npm ci
+        working-directory: yt-research
+      - run: npm run build
+        working-directory: yt-research
+
+      - name: Combine builds
+        run: |
+          mkdir -p site
+          cp -r weather-app/dist/. site/
+          mkdir -p site/research
+          cp -r yt-research/dist/. site/research/
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: weather-app/dist
+          path: site
 
   deploy:
     needs: build
