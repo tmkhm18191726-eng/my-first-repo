@@ -1,4 +1,4 @@
-import { useRef, type PointerEvent } from 'react'
+import { useRef, type PointerEvent, type TouchEvent } from 'react'
 import type { Forecast } from '../types'
 import { TodayPoints } from './TodayPoints'
 import { ForecastTabs } from './ForecastTabs'
@@ -14,30 +14,44 @@ interface Props {
 }
 
 export function ForecastView({ forecast, locationLabel, photoUrl, onBack }: Props) {
-  const touchStart = useRef<{ x: number; y: number; canReturn: boolean } | null>(null)
+  const gestureStart = useRef<{ x: number; y: number } | null>(null)
   const today = forecast.daily[0]
   const tomorrow = forecast.daily[1]
   const heroPhotoUrl = photoUrl ?? `${import.meta.env.BASE_URL}default-memory-child.png`
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    touchStart.current = {
-      x: event.clientX,
-      y: event.clientY,
-      canReturn: (event.currentTarget.parentElement?.scrollTop ?? 0) <= 1,
-    }
+    gestureStart.current = { x: event.clientX, y: event.clientY }
+    event.currentTarget.setPointerCapture(event.pointerId)
   }
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (!touchStart.current) return
+    finishGesture(event.clientX, event.clientY)
+  }
 
-    const distanceX = event.clientX - touchStart.current.x
-    const distanceY = event.clientY - touchStart.current.y
-    const canReturn = touchStart.current.canReturn
-    touchStart.current = null
+  const finishGesture = (x: number, y: number) => {
+    if (!gestureStart.current) return
 
-    if (canReturn && distanceY > 64 && Math.abs(distanceY) > Math.abs(distanceX) * 1.25) {
+    const distanceX = x - gestureStart.current.x
+    const distanceY = y - gestureStart.current.y
+    gestureStart.current = null
+
+    if (distanceY > 64 && Math.abs(distanceY) > Math.abs(distanceX) * 1.25) {
       onBack()
     }
+  }
+
+  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0]
+    if (touch) gestureStart.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const touch = event.changedTouches[0]
+    if (touch) finishGesture(touch.clientX, touch.clientY)
+  }
+
+  const cancelGesture = () => {
+    gestureStart.current = null
   }
 
   return (
@@ -45,6 +59,10 @@ export function ForecastView({ forecast, locationLabel, photoUrl, onBack }: Prop
       className="forecast-view"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
+      onPointerCancel={cancelGesture}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={cancelGesture}
     >
       <button type="button" className="forecast-back-hint" onClick={onBack}>
         <span aria-hidden="true">⌄</span> 下にスライドでトップへ

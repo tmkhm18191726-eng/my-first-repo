@@ -112,7 +112,12 @@ export function WeatherView({
             <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
           </div>
           <div className="weather-side">
-            {tomorrow && <TodayTomorrowCard today={today} tomorrow={tomorrow} />}
+            {tomorrow && (
+              <TodayTomorrowCard
+                today={{ ...today, category: weather.category }}
+                tomorrow={tomorrow}
+              />
+            )}
           </div>
         </div>
       )}
