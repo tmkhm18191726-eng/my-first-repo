@@ -133,43 +133,6 @@
   margin: 5px 0 13px;
 }
 
-.today-condition-row {
-  min-width: 0;
-}
-
-.temp-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-width: 220px;
-}
-
-.pill {
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 253, 250, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(12px);
-  white-space: nowrap;
-}
-
-.pill-max {
-  color: var(--accent-dark);
-}
-
-.pill-min {
-  color: #3f7dc2;
-}
-
-.pill-rain {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  color: #4f82af;
-}
-
 .tt-card {
   flex-shrink: 0;
   background: rgba(255, 253, 250, 0.78);
@@ -180,11 +143,6 @@
   box-shadow: 0 12px 32px rgba(61, 49, 41, 0.1);
   min-width: 0;
   width: 100%;
-}
-
-.tt-card.tomorrow-only {
-  padding: 10px 11px;
-  border-radius: 18px;
 }
 
 .tt-row {
@@ -1325,7 +1283,7 @@
   }
 
   .weather-view .tt-row {
-    gap: 2px;
+    gap: 1px;
     font-size: 10.5px;
   }
 
@@ -1340,55 +1298,16 @@
     flex-shrink: 0;
   }
 
+  .weather-view .tt-divider {
+    margin: 5px 0;
+  }
+
   .weather-view .weather-side {
     gap: 7px;
   }
 
   .weather-view .weather-top-left {
     width: fit-content;
-  }
-
-  .weather-view .today-condition-row {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    width: max-content;
-  }
-
-  .weather-view .weather-top-left .description {
-    margin: 5px 0 0;
-    white-space: nowrap;
-  }
-
-  .weather-view .temp-pills {
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: flex-start;
-    gap: 3px;
-    max-width: none;
-    min-width: 116px;
-    margin-top: 0;
-    padding: 0;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-  }
-
-  .weather-view .pill {
-    min-width: 116px;
-    padding: 3px 7px;
-    font-size: 11.5px;
-    line-height: 1.2;
-    background: rgba(255, 253, 250, 0.74);
-    border: 1px solid rgba(255, 255, 255, 0.68);
-    box-shadow: 0 5px 14px rgba(61, 49, 41, 0.07);
-    backdrop-filter: blur(10px);
-  }
-
-  .weather-view .pill-rain {
-    gap: 2px;
   }
 
   .weather-view .weather-headline .temperature {

@@ -6,7 +6,6 @@ import { SpeechBubble } from './SpeechBubble'
 import { WeatherIcon } from './WeatherIcon'
 import { TodayTomorrowCard } from './TodayTomorrowCard'
 import { HourlyStrip } from './HourlyStrip'
-import { UmbrellaIcon } from './CuteIcons'
 
 interface Props {
   forecast: Forecast | null
@@ -104,23 +103,14 @@ export function WeatherView({
               <span className="temperature">{weather.temperature}°</span>
               <WeatherIcon category={weather.category} size={44} />
             </div>
-            <div className="today-condition-row">
-              <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
-              <div className="temp-pills">
-                <span className="pill pill-max">最高気温 {today.maxTemp}°</span>
-                <span className="pill pill-min">最低気温 {today.minTemp}°</span>
-                <span className="pill pill-rain">
-                  <UmbrellaIcon size={15} /> 降水確率 {today.precipitationProbability}%
-                </span>
-              </div>
-            </div>
+            <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
           </div>
           <div className="weather-side">
             <div className="weather-actions" aria-label="クイック操作">
               <span aria-hidden="true">♢</span>
               <span className="heart" aria-hidden="true">♥</span>
             </div>
-            {tomorrow && <TodayTomorrowCard tomorrow={tomorrow} />}
+            {tomorrow && <TodayTomorrowCard today={today} tomorrow={tomorrow} />}
           </div>
         </div>
       )}

@@ -3,21 +3,39 @@ import { WeatherIcon } from './WeatherIcon'
 import { UmbrellaIcon } from './CuteIcons'
 
 interface Props {
+  today: DailyPoint
   tomorrow: DailyPoint
 }
 
-export function TodayTomorrowCard({ tomorrow }: Props) {
+function WeatherSummaryRow({
+  label,
+  point,
+}: {
+  label: string
+  point: DailyPoint
+}) {
   return (
-    <div className="tt-card tomorrow-only">
-      <div className="tt-row">
-        <span className="tt-label">明日</span>
-        <WeatherIcon category={tomorrow.category} size={24} />
-        <span className="tt-temps">
-          <span className="tt-max">{tomorrow.maxTemp}°</span>/
-          <span className="tt-min">{tomorrow.minTemp}°</span>
-        </span>
-        <span className="tt-precip"><UmbrellaIcon size={13} />{tomorrow.precipitationProbability}%</span>
-      </div>
+    <div className="tt-row">
+      <span className="tt-label">{label}</span>
+      <WeatherIcon category={point.category} size={22} />
+      <span className="tt-temps">
+        <span className="tt-max">{point.maxTemp}°</span>/
+        <span className="tt-min">{point.minTemp}°</span>
+      </span>
+      <span className="tt-precip">
+        <UmbrellaIcon size={13} />
+        {point.precipitationProbability}%
+      </span>
+    </div>
+  )
+}
+
+export function TodayTomorrowCard({ today, tomorrow }: Props) {
+  return (
+    <div className="tt-card today-tomorrow-card">
+      <WeatherSummaryRow label="今日" point={today} />
+      <div className="tt-divider" />
+      <WeatherSummaryRow label="明日" point={tomorrow} />
     </div>
   )
 }

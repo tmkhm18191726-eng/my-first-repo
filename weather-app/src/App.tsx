@@ -102,7 +102,7 @@ function App() {
               <div className="settings-copy">
                 <strong>アイコンに現在気温を表示</strong>
                 <span>
-                  ホーム画面に追加したアプリ専用です。開いた時の気温を赤い数字で表示します
+                  ホーム画面に追加したアプリ専用です。色はiPhone標準の赤で変更できません
                 </span>
               </div>
               <button
