@@ -1,43 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { PhasePreview } from "@/components/PhasePreview";
 import { StandbyScreen } from "@/components/StandbyScreen";
 import { StatusBanner } from "@/components/StatusBanner";
-import { isMicLive, type CallErrorCode, type CallPhase } from "@/lib/call/status";
+import { isMicLive } from "@/lib/call/status";
+import { useCallSession } from "@/lib/call/useCallSession";
 
 export default function HomePcPage() {
-  const [standby, setStandby] = useState(false);
-  const [phase, setPhase] = useState<CallPhase>("idle");
-  const [errorCode, setErrorCode] = useState<CallErrorCode | undefined>(undefined);
+  const session = useCallSession("home");
 
-  // ステップ1-2 で、ここがつなぎ役サーバーへの接続処理に置き換わります。
-  const handleStartStandby = () => {
-    setErrorCode(undefined);
-    setStandby(true);
-    setPhase("waiting");
-  };
-
-  const handleStopStandby = () => {
-    setStandby(false);
-    setPhase("idle");
-    setErrorCode(undefined);
-  };
-
-  const handleHangUp = () => {
-    setPhase("waiting");
-    setErrorCode(undefined);
-  };
-
-  if (standby) {
+  // 「待機開始」を押したあとは、ずっとこの全画面表示のまま
+  if (session.phase !== "idle") {
     return (
       <StandbyScreen
-        phase={phase}
-        errorCode={errorCode}
-        micLive={isMicLive(phase)}
-        onHangUp={handleHangUp}
-        onStopStandby={handleStopStandby}
+        phase={session.phase}
+        errorCode={session.errorCode}
+        micLive={isMicLive(session.phase)}
+        micLevel={session.micLevel}
+        parentOnline={session.parentOnline}
+        onHangUp={session.hangUp}
+        onStopStandby={session.stop}
       />
     );
   }
@@ -50,16 +32,16 @@ export default function HomePcPage() {
       </p>
 
       <div className="card">
-        <StatusBanner phase={phase} errorCode={errorCode} />
+        <StatusBanner phase={session.phase} errorCode={session.errorCode} />
       </div>
 
       <div className="card">
-        <button type="button" className="btn btn-primary" onClick={handleStartStandby}>
+        <button type="button" className="btn btn-primary" onClick={session.start}>
           待機開始
         </button>
         <p className="note">
-          ※ 現在はステップ1-1（画面の見た目を作る段階）です。押すと待機画面の見た目を確認できますが、
-          まだ実際には着信しません。
+          ※ 現在はステップ1-2（相手を見つけるしくみを作る段階）です。親のスマホからの呼び出しは
+          届きますが、まだ声は流れません。音声はステップ1-3 で追加します。
         </p>
       </div>
 
@@ -75,14 +57,6 @@ export default function HomePcPage() {
       <Link className="note" href="/">
         ← 最初の画面にもどる
       </Link>
-
-      <PhasePreview
-        onSelect={(nextPhase, nextError) => {
-          setStandby(true);
-          setPhase(nextPhase);
-          setErrorCode(nextError);
-        }}
-      />
     </main>
   );
 }

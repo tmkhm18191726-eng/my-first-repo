@@ -27,6 +27,7 @@ export type CallErrorCode =
   | "insecure-context"
   | "network"
   | "peer-offline"
+  | "role-taken"
   | "auth"
   | "connect-failed"
   | "unknown";
@@ -114,6 +115,12 @@ const ERROR_TEXT: Record<CallErrorCode, StatusText> = {
     label: "自宅のパソコンが待機していません",
     description:
       "自宅のパソコンで見守り通話の画面を開き、「待機開始」を押してもらってください。",
+    tone: "danger",
+  },
+  "role-taken": {
+    label: "別の画面で開かれました",
+    description:
+      "同じ役割の画面が、別の端末またはタブで開かれたため、この画面の接続は切り替わりました。この画面を使う場合は、再読み込みしてください。",
     tone: "danger",
   },
   auth: {

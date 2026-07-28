@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "dev:signal": "wrangler dev --port 8787",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "next": "16.2.12",
@@ -17,6 +19,7 @@
     "@types/node": "^22.15.3",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "wrangler": "^4.114.0"
   }
 }

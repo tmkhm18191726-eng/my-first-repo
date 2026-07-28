@@ -301,6 +301,11 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* エラー文など、見出しが長いときは画面からはみ出さないよう少し小さくする */
+.standby-headline[data-long="true"] {
+  font-size: clamp(30px, 5.5vw, 64px);
+}
+
 .standby-sub {
   font-size: clamp(18px, 2.4vw, 28px);
   margin: 0;

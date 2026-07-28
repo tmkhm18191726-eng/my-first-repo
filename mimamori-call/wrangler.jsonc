@@ -1,0 +1,30 @@
+{
+  // Cloudflare Workers の設定ファイル。
+  // 「どのプログラムを動かすか」「どの機能を使うか」を書いてあります。
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mimamori-call",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // つなぎ役（SignalRoom）を使えるようにする設定。
+  // SIGNAL_ROOM という名前でプログラムから呼び出せます。
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SIGNAL_ROOM",
+        "class_name": "SignalRoom"
+      }
+    ]
+  },
+
+  // Durable Object を新しく作るときの宣言。
+  // new_sqlite_classes を使うと、Cloudflare の無料プランでも利用できます。
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["SignalRoom"]
+    }
+  ]
+}

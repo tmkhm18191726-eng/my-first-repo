@@ -1,0 +1,17 @@
+{
+  // Cloudflare Workers 側（つなぎ役サーバー）専用の設定。
+  // ブラウザ用の設定と型が混ざらないよう、画面側とは別ファイルに分けています。
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "types": []
+  },
+  "include": ["worker-configuration.d.ts", "src/worker/**/*.ts", "src/lib/call/types.ts"]
+}

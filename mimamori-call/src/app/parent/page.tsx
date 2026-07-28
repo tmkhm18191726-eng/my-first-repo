@@ -1,27 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect } from "react";
 import { CallControls } from "@/components/CallControls";
 import { MicIndicator } from "@/components/MicIndicator";
-import { PhasePreview } from "@/components/PhasePreview";
 import { StatusBanner } from "@/components/StatusBanner";
-import { isMicLive, type CallErrorCode, type CallPhase } from "@/lib/call/status";
+import { isMicLive } from "@/lib/call/status";
+import { useCallSession } from "@/lib/call/useCallSession";
+import type { HomePresence } from "@/lib/call/types";
+
+const HOME_PRESENCE_TEXT: Record<HomePresence, string> = {
+  waiting: "待機中（呼び出せます）",
+  "in-call": "通話中",
+  offline: "待機していません",
+};
 
 export default function ParentPage() {
-  const [phase, setPhase] = useState<CallPhase>("idle");
-  const [errorCode, setErrorCode] = useState<CallErrorCode | undefined>(undefined);
+  const session = useCallSession("parent");
+  const { start } = session;
 
-  // ステップ1-3 で、ここが実際の WebRTC の呼び出し処理に置き換わります。
-  const handleConnect = () => {
-    setErrorCode(undefined);
-    setPhase("calling");
-  };
-
-  const handleHangUp = () => {
-    setErrorCode(undefined);
-    setPhase("ended");
-  };
+  // 画面を開いたらすぐ、自宅パソコンの状況を見にいく
+  useEffect(() => {
+    start();
+  }, [start]);
 
   return (
     <main className="page">
@@ -29,17 +30,26 @@ export default function ParentPage() {
       <p className="page-lead">自宅のパソコンに話しかけます。会話は録音されません。</p>
 
       <div className="card">
-        <StatusBanner phase={phase} errorCode={errorCode} />
+        <StatusBanner phase={session.phase} errorCode={session.errorCode} />
       </div>
 
       <div className="card">
-        <MicIndicator live={isMicLive(phase)} />
+        <p className="section-title">自宅のパソコン</p>
+        <p className="status-description">{HOME_PRESENCE_TEXT[session.homePresence]}</p>
+      </div>
+
+      <div className="card">
+        <MicIndicator live={isMicLive(session.phase)} level={session.micLevel} />
         <div style={{ marginTop: 16 }}>
-          <CallControls phase={phase} onConnect={handleConnect} onHangUp={handleHangUp} />
+          <CallControls
+            phase={session.phase}
+            onConnect={session.connect}
+            onHangUp={session.hangUp}
+          />
         </div>
         <p className="note">
-          ※ 現在はステップ1-1（画面の見た目を作る段階）です。ボタンを押しても、まだ実際には
-          音声はつながりません。
+          ※ 現在はステップ1-2（相手を見つけるしくみを作る段階）です。呼び出しは届きますが、
+          まだ声は流れません。音声はステップ1-3 で追加します。
         </p>
       </div>
 
@@ -55,13 +65,6 @@ export default function ParentPage() {
       <Link className="note" href="/">
         ← 最初の画面にもどる
       </Link>
-
-      <PhasePreview
-        onSelect={(nextPhase, nextError) => {
-          setPhase(nextPhase);
-          setErrorCode(nextError);
-        }}
-      />
     </main>
   );
 }
