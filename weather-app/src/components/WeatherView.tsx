@@ -107,10 +107,10 @@ export function WeatherView({
             <div className="today-condition-row">
               <p className="description">{describeWeatherCode(weather.weatherCode)}</p>
               <div className="temp-pills">
-                <span className="pill pill-max">最高 {today.maxTemp}°</span>
-                <span className="pill pill-min">最低 {today.minTemp}°</span>
+                <span className="pill pill-max">最高気温 {today.maxTemp}°</span>
+                <span className="pill pill-min">最低気温 {today.minTemp}°</span>
                 <span className="pill pill-rain">
-                  <UmbrellaIcon size={15} /> {today.precipitationProbability}%
+                  <UmbrellaIcon size={15} /> 降水確率 {today.precipitationProbability}%
                 </span>
               </div>
             </div>
