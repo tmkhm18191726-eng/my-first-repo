@@ -1,6 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  checkMicrophone,
+  ensureAudioContext,
+  getLocalMedia,
+  MicError,
+  playChime,
+  startLevelMeter,
+  stopStream,
+} from "./media";
+import { CallPeer } from "./peer";
 import { SignalingClient, type SignalingState } from "./signaling";
 import type { CallErrorCode, CallPhase } from "./status";
 import { AUDIO_ONLY, type CallRole, type HomePresence, type ServerMessage } from "./types";
@@ -9,8 +19,12 @@ import { AUDIO_ONLY, type CallRole, type HomePresence, type ServerMessage } from
  * 通話の進行を1か所でまとめて管理する。
  * 親用の画面と自宅PC用の画面は、どちらもこれを使う。
  *
- * ステップ1-2 の時点では「相手を見つけて呼び出す」ところまで。
- * ステップ1-3 で、ここに実際の音声のやりとり（WebRTC）を足す。
+ * 流れ：
+ *   親が「接続する」→ マイクを借りる → 呼び出しを送る
+ *   自宅PCが呼び出しを受け取る → チャイムを鳴らす → マイクを借りて接続情報を送る
+ *   親が返事を返す → 音声がつながる
+ *
+ * 声は端末どうしを直接流れる。サーバーには渡らず、録音も保存もしない。
  */
 
 export type CallSession = {
@@ -22,7 +36,7 @@ export type CallSession = {
   parentOnline: boolean;
   /** つなぎ役サーバーとつながっているか */
   signalingState: SignalingState;
-  /** マイクが拾っている音の大きさ 0〜1（ステップ1-3 から実際の値が入る） */
+  /** マイクが拾っている音の大きさ 0〜1 */
   micLevel: number;
   /** 待機や接続を始める */
   start: () => void;
@@ -36,6 +50,9 @@ export type CallSession = {
 
 /** 自宅PCで「通話を終了しました」を表示しておく時間（ミリ秒）。この後は待機表示に戻る。 */
 const ENDED_DISPLAY_MS = 5000;
+
+/** 接続に手間取ったとき、あきらめてエラーを出すまでの時間（ミリ秒）。 */
+const CONNECT_TIMEOUT_MS = 30000;
 
 /** サーバーから届いたエラーを、画面に出す日本語の種類に変換する。 */
 function toErrorCode(code: string): CallErrorCode {
@@ -58,16 +75,111 @@ export function useCallSession(role: CallRole): CallSession {
   const [parentOnline, setParentOnline] = useState(false);
   /** 相手の状況がまだ一度も届いていない間は、判断を保留する */
   const [presenceKnown, setPresenceKnown] = useState(false);
-  const [inCall, setInCall] = useState(false);
+  const [connected, setConnected] = useState(false);
+  /** 呼び出し中、または音声の通り道を作っている最中 */
+  const [negotiating, setNegotiating] = useState(false);
   const [calling, setCalling] = useState(false);
   const [ended, setEnded] = useState(false);
   const [errorCode, setErrorCode] = useState<CallErrorCode | undefined>(undefined);
-  const [micLevel] = useState(0);
+  const [micLevel, setMicLevel] = useState(0);
 
   const clientRef = useRef<SignalingClient | null>(null);
-  /** 呼び出し中かどうかを、届いたメッセージの処理から参照するための控え */
-  const callingRef = useRef(false);
-  callingRef.current = calling;
+  const peerRef = useRef<CallPeer | null>(null);
+  const localStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const stopMeterRef = useRef<(() => void) | null>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /** 相手の声を鳴らすための、画面には出ない音声プレーヤー。 */
+  const remoteAudio = useCallback((): HTMLAudioElement => {
+    if (!remoteAudioRef.current) {
+      const el = document.createElement("audio");
+      el.autoplay = true;
+      // iPhone で全画面プレーヤーに切り替わらないようにする
+      el.setAttribute("playsinline", "");
+      el.style.display = "none";
+      document.body.appendChild(el);
+      remoteAudioRef.current = el;
+    }
+    return remoteAudioRef.current;
+  }, []);
+
+  /** 通話に使っていたものを片づける。待機そのものは続く。 */
+  const teardownCall = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    stopMeterRef.current?.();
+    stopMeterRef.current = null;
+    peerRef.current?.close();
+    peerRef.current = null;
+    stopStream(localStreamRef.current);
+    localStreamRef.current = null;
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = null;
+    }
+    setMicLevel(0);
+    setConnected(false);
+    setNegotiating(false);
+    setCalling(false);
+  }, []);
+
+  /** 接続に時間がかかりすぎたときのための見張り。 */
+  const armTimeout = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      teardownCall();
+      setErrorCode("connect-failed");
+      clientRef.current?.send({ type: "bye", reason: "接続できませんでした" });
+    }, CONNECT_TIMEOUT_MS);
+  }, [teardownCall]);
+
+  /** マイクを借りて、音量メーターを動かし、通話の相手役を用意する。 */
+  const createPeer = useCallback(async (): Promise<CallPeer> => {
+    const stream = await getLocalMedia(AUDIO_ONLY);
+    localStreamRef.current = stream;
+
+    const context = ensureAudioContext(audioContextRef.current);
+    audioContextRef.current = context;
+    stopMeterRef.current = startLevelMeter(context, stream, setMicLevel);
+
+    const peer = new CallPeer(AUDIO_ONLY, {
+      onIceCandidate: (candidate) => {
+        clientRef.current?.send({ type: "ice", candidate });
+      },
+      onRemoteStream: (remote) => {
+        const el = remoteAudio();
+        el.srcObject = remote;
+        void el.play().catch(() => {
+          // 自動再生が止められた場合。利用者の操作後なので通常は起きない。
+        });
+      },
+      onStateChange: (state) => {
+        if (state === "connected") {
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+          setNegotiating(false);
+          setCalling(false);
+          setConnected(true);
+          setEnded(false);
+        } else if (state === "failed") {
+          teardownCall();
+          setErrorCode("connect-failed");
+        } else if (state === "closed") {
+          setConnected(false);
+        }
+        // "disconnected" は電波が一瞬途切れただけで戻ることが多いので、
+        // すぐには通話中の表示を消さない
+      },
+    });
+    peer.addLocalStream(stream);
+    peerRef.current = peer;
+    return peer;
+  }, [remoteAudio, teardownCall]);
 
   const handleMessage = useCallback(
     (message: ServerMessage) => {
@@ -76,42 +188,81 @@ export function useCallSession(role: CallRole): CallSession {
           setHomePresence(message.home);
           setParentOnline(message.parentOnline);
           setPresenceKnown(true);
-          // 親側：呼び出しに自宅PCが応答した
-          if (role === "parent" && callingRef.current && message.home === "in-call") {
-            setCalling(false);
-            setInCall(true);
-          }
           break;
 
-        case "incoming":
+        case "incoming": {
           // 自宅PC側：親から呼び出しが来た。自動で応答する。
-          // 気づかないうちに繋がらないよう、画面表示とチャイムで必ず知らせる。
+          // 気づかないうちに繋がらないよう、チャイムと全画面表示で必ず知らせる。
           setEnded(false);
           setErrorCode(undefined);
-          setInCall(true);
-          break;
+          setNegotiating(true);
+          armTimeout();
+
+          const context = ensureAudioContext(audioContextRef.current);
+          audioContextRef.current = context;
+          playChime(context);
+
+          void (async () => {
+            try {
+              const peer = await createPeer();
+              const sdp = await peer.createOffer();
+              clientRef.current?.send({ type: "offer", sdp });
+            } catch (error) {
+              teardownCall();
+              setErrorCode(error instanceof MicError ? error.code : "unknown");
+              clientRef.current?.send({ type: "bye", reason: "応答できませんでした" });
+            }
+          })();
+          return;
+        }
+
+        case "offer": {
+          // 親側：自宅PCから接続情報が届いた。返事を返す。
+          setNegotiating(true);
+          armTimeout();
+          void (async () => {
+            try {
+              const peer = peerRef.current ?? (await createPeer());
+              const sdp = await peer.acceptOffer(message.sdp);
+              clientRef.current?.send({ type: "answer", sdp });
+            } catch (error) {
+              teardownCall();
+              setErrorCode(error instanceof MicError ? error.code : "unknown");
+              clientRef.current?.send({ type: "bye", reason: "応答できませんでした" });
+            }
+          })();
+          return;
+        }
+
+        case "answer":
+          void peerRef.current?.acceptAnswer(message.sdp).catch(() => {
+            teardownCall();
+            setErrorCode("connect-failed");
+          });
+          return;
+
+        case "ice":
+          void peerRef.current?.addIceCandidate(message.candidate);
+          return;
 
         case "bye":
-          setInCall(false);
-          setCalling(false);
+          teardownCall();
           setEnded(true);
-          break;
+          return;
 
         case "error":
-          setCalling(false);
-          setInCall(false);
+          teardownCall();
           setErrorCode(toErrorCode(message.code));
-          break;
+          return;
 
-        // offer / answer / ice はステップ1-3 で使う
         default:
-          break;
+          return;
       }
     },
-    [role],
+    [armTimeout, createPeer, teardownCall],
   );
 
-  // 接続の開始と後片付け
+  // つなぎ役サーバーへの接続の開始と後片付け
   useEffect(() => {
     if (!active) return;
 
@@ -132,10 +283,19 @@ export function useCallSession(role: CallRole): CallSession {
       setHomePresence("offline");
       setParentOnline(false);
       setPresenceKnown(false);
-      setInCall(false);
-      setCalling(false);
     };
   }, [active, role, handleMessage]);
+
+  // 画面を閉じるときは、必ずマイクを手放す
+  useEffect(() => {
+    return () => {
+      teardownCall();
+      remoteAudioRef.current?.remove();
+      remoteAudioRef.current = null;
+      void audioContextRef.current?.close().catch(() => {});
+      audioContextRef.current = null;
+    };
+  }, [teardownCall]);
 
   // 自宅PCでは「通話を終了しました」をしばらく見せてから、待機表示に戻す
   useEffect(() => {
@@ -148,16 +308,31 @@ export function useCallSession(role: CallRole): CallSession {
     setErrorCode(undefined);
     setEnded(false);
     setActive(true);
-  }, []);
+
+    // ボタンを押したこの流れの中で、音を出す準備とマイクの許可を済ませておく。
+    audioContextRef.current = ensureAudioContext(audioContextRef.current);
+
+    if (role === "home") {
+      // 着信時に許可を聞かれて出られない、という事態を防ぐための事前確認。
+      // 確認できたらマイクはすぐ手放すので、待機中にマイクは入らない。
+      void checkMicrophone().catch((error: unknown) => {
+        setErrorCode(error instanceof MicError ? error.code : "unknown");
+        // マイクが使えないなら着信しても応答できない。
+        // 待機をやめて、親の画面に「待機していません」と出るようにする。
+        setActive(false);
+      });
+    }
+  }, [role]);
 
   const stop = useCallback(() => {
-    if (inCall || calling) {
+    if (connected || negotiating || calling) {
       clientRef.current?.send({ type: "bye", reason: "待機をやめました" });
     }
+    teardownCall();
     setActive(false);
     setEnded(false);
     setErrorCode(undefined);
-  }, [calling, inCall]);
+  }, [calling, connected, negotiating, teardownCall]);
 
   const connect = useCallback(() => {
     setErrorCode(undefined);
@@ -166,35 +341,59 @@ export function useCallSession(role: CallRole): CallSession {
       setErrorCode("peer-offline");
       return;
     }
-    const sent = clientRef.current?.send({ type: "call", media: AUDIO_ONLY });
-    if (!sent) {
-      setErrorCode("network");
-      return;
-    }
+
+    // iPhone は、ボタンを押したこの流れの中でマイクを借りないと音が出せない
+    audioContextRef.current = ensureAudioContext(audioContextRef.current);
     setCalling(true);
-  }, [homePresence]);
+    armTimeout();
+
+    void (async () => {
+      try {
+        await createPeer();
+        const sent = clientRef.current?.send({ type: "call", media: AUDIO_ONLY });
+        if (!sent) {
+          teardownCall();
+          setErrorCode("network");
+        }
+      } catch (error) {
+        teardownCall();
+        setErrorCode(error instanceof MicError ? error.code : "unknown");
+      }
+    })();
+  }, [armTimeout, createPeer, homePresence, teardownCall]);
 
   const hangUp = useCallback(() => {
-    if (inCall || calling) {
+    if (connected || negotiating || calling) {
       clientRef.current?.send({ type: "bye", reason: "通話を終了しました" });
     }
-    setInCall(false);
-    setCalling(false);
+    teardownCall();
     setEnded(true);
-  }, [calling, inCall]);
+  }, [calling, connected, negotiating, teardownCall]);
 
   const phase: CallPhase = useMemo(() => {
     if (errorCode) return "error";
     if (!active) return "idle";
     if (signalingState !== "open" || !presenceKnown) return "connecting";
-    if (inCall) return "in-call";
+    if (connected) return "in-call";
+    if (negotiating) return "negotiating";
     if (calling) return "calling";
     // 親側は、自宅PCが待機していないと呼び出せない。
     // 「通話を終了しました」より、こちらを先に知らせる。
     if (role === "parent" && homePresence === "offline") return "error";
     if (ended) return "ended";
     return "waiting";
-  }, [active, calling, ended, errorCode, homePresence, inCall, presenceKnown, role, signalingState]);
+  }, [
+    active,
+    calling,
+    connected,
+    ended,
+    errorCode,
+    homePresence,
+    negotiating,
+    presenceKnown,
+    role,
+    signalingState,
+  ]);
 
   const resolvedErrorCode: CallErrorCode | undefined = useMemo(() => {
     if (errorCode) return errorCode;
