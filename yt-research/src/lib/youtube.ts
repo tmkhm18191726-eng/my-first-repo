@@ -27,7 +27,7 @@ interface ErrorPayload {
 
 function describeError(status: number, reason: string, apiMessage: string): string {
   if (reason === 'quotaExceeded' || reason === 'dailyLimitExceeded') {
-    return '本日の API クォータを使い切りました。日付が変わる（日本時間の17時ごろ）まで待つか、別のプロジェクトの API キーを使ってください。'
+    return '本日の API クォータを使い切りました。太平洋時間の0時（日本時間の16〜17時ごろ）にリセットされるので、それまで待つか、取得ページ数を減らして試してください。'
   }
   if (reason === 'keyInvalid' || reason === 'badRequest') {
     return 'API キーが正しくないようです。設定画面のキーを確認してください。'

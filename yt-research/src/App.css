@@ -261,6 +261,84 @@
   margin: 0;
 }
 
+.banner.subtle {
+  background: var(--surface-2);
+  border-color: var(--border);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* クォータメーター */
+.quota {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quota-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.quota-label {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.quota-value {
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.quota-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.quota-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.quota-fill.ok {
+  background: #4ade80;
+}
+
+.quota-fill.warn {
+  background: #fbbf24;
+}
+
+.quota-fill.danger {
+  background: var(--accent);
+}
+
+.quota-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  color: var(--text-dim);
+}
+
+.quota-foot strong {
+  color: var(--accent-2);
+  font-size: 0.9rem;
+}
+
+.quota-reset-button {
+  align-self: flex-start;
+}
+
 .error,
 .notice {
   margin: 0;

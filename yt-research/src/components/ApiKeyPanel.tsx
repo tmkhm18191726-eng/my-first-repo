@@ -100,7 +100,9 @@ export function ApiKeyPanel({ apiKey, onSave }: Props) {
           <li>上の入力欄に貼り付けて保存</li>
         </ol>
         <p className="hint">
-          無料枠は1日 10,000 クォータです。検索1回でおよそ 100〜500 使います。
+          YouTube Data API v3 の利用は無料で、支払い情報の登録も必要ありません。
+          1日 10,000 クォータの無料枠だけで動き、それを超えると課金ではなくエラーが返る仕組みです。
+          検索1回でおよそ 100〜500 使います。
         </p>
       </details>
     </section>

@@ -3,7 +3,9 @@ import { SearchForm } from './components/SearchForm'
 import { ResultList } from './components/ResultList'
 import { ApiKeyPanel } from './components/ApiKeyPanel'
 import { HistoryPanel } from './components/HistoryPanel'
+import { QuotaMeter } from './components/QuotaMeter'
 import { describeFilters } from './lib/filters'
+import { estimateQuota } from './lib/youtube'
 import { hasStoredApiKey, useApiKey } from './hooks/useApiKey'
 import { useSearch } from './hooks/useSearch'
 import { clearHistory, loadHistory, removeHistory } from './lib/history'
@@ -11,6 +13,11 @@ import { DEFAULT_FILTERS, type HistoryEntry, type SearchFilters } from './types'
 import './App.css'
 
 type Tab = 'search' | 'history' | 'settings'
+
+const REUSED_FORMATTER = new Intl.DateTimeFormat('ja-JP', {
+  hour: '2-digit',
+  minute: '2-digit',
+})
 
 const TAB_LABELS: Record<Tab, string> = {
   search: 'リサーチ',
@@ -27,10 +34,18 @@ function App() {
   useEffect(() => setHistory(loadHistory()), [])
 
   const handleHistoryChange = useCallback((entries: HistoryEntry[]) => setHistory(entries), [])
-  const { result, loading, progress, error, run, cancel, showHistoryEntry } = useSearch(
-    apiKey,
-    handleHistoryChange,
-  )
+  const {
+    result,
+    loading,
+    progress,
+    error,
+    quotaUsed,
+    reusedAt,
+    run,
+    cancel,
+    showHistoryEntry,
+    syncQuota,
+  } = useSearch(apiKey, handleHistoryChange)
 
   const handleShowHistory = (entry: HistoryEntry) => {
     showHistoryEntry(entry)
@@ -81,6 +96,14 @@ function App() {
               </div>
             )}
 
+            {apiKey && (
+              <QuotaMeter
+                used={quotaUsed}
+                cost={estimateQuota(filters.pages)}
+                onReset={syncQuota}
+              />
+            )}
+
             <SearchForm
               filters={filters}
               loading={loading}
@@ -97,6 +120,21 @@ function App() {
                 <p className="applied-filters">
                   「{result.filters.keyword}」 · {describeFilters(result.filters)}
                 </p>
+                {reusedAt && (
+                  <div className="banner subtle">
+                    <p>
+                      {REUSED_FORMATTER.format(new Date(reusedAt))}
+                      の検索結果を表示しています（クォータ消費なし）
+                    </p>
+                    <button
+                      type="button"
+                      className="button ghost small"
+                      onClick={() => run(result.filters, { force: true })}
+                    >
+                      API から取り直す
+                    </button>
+                  </div>
+                )}
                 <ResultList result={result} />
               </>
             )}
