@@ -1,0 +1,22 @@
+# 依存パッケージ
+/node_modules
+
+# Next.js のビルド結果
+/.next
+/out
+next-env.d.ts
+*.tsbuildinfo
+
+# Cloudflare
+/.open-next
+/.wrangler
+
+# 秘密情報（絶対にコミットしない）
+.env
+.env.local
+.env*.local
+.dev.vars
+
+# OS / エディタ
+.DS_Store
+*.log

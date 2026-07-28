@@ -1,0 +1,21 @@
+# 手元で動かすときの秘密情報の「見本」です。
+# このファイルをコピーして .dev.vars という名前で保存し、値を入れてください。
+# .dev.vars は .gitignore に入れてあるので、GitHub にはアップロードされません。
+#
+#   cp .dev.vars.example .dev.vars
+#
+# ※ フェーズ1（家の中で試す段階）では、まだ何も設定する必要はありません。
+#    フェーズ2以降で使う項目を、先に名前だけ用意してあります。
+
+# --- フェーズ2で使います ---
+# 通話がつながらない回線のときに使う中継サーバー（TURN）の資格情報。
+# Cloudflare のダッシュボードで発行し、値はここではなく
+# `npx wrangler secret put TURN_KEY_ID` のようにして本番へ登録します。
+TURN_KEY_ID=
+TURN_API_TOKEN=
+
+# --- フェーズ3で使います ---
+# Cloudflare Access のチーム名（例: ourfamily）と、アプリの識別子。
+# 「誰のログインを信用するか」をサーバー側で確かめるために使います。
+ACCESS_TEAM_DOMAIN=
+ACCESS_AUD=

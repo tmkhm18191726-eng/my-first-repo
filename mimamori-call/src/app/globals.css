@@ -1,0 +1,410 @@
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --text: #14202e;
+  --text-muted: #55636f;
+  --border: #d7dee6;
+
+  /* 状態を表す色。文言と色を必ずセットで使う（色だけに頼らない） */
+  --tone-neutral: #55636f;
+  --tone-info: #0b5fa5;
+  --tone-active: #0d7a3f;
+  --tone-danger: #b3261e;
+
+  --radius: 16px;
+  --shadow: 0 2px 10px rgba(20, 32, 46, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #11161d;
+    --surface: #1b222c;
+    --text: #eef2f7;
+    --text-muted: #a3b0bd;
+    --border: #2e3844;
+
+    --tone-neutral: #a3b0bd;
+    --tone-info: #6ab5f5;
+    --tone-active: #56d38b;
+    --tone-danger: #ff8a80;
+
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui,
+    -apple-system, sans-serif;
+  line-height: 1.7;
+  /* iPhone のホーム画面追加時に、上下のノッチ部分に文字がかからないようにする */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  -webkit-text-size-adjust: 100%;
+}
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.page-lead {
+  color: var(--text-muted);
+  margin: 0 0 24px;
+  font-size: 15px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+/* ---- 大きなボタン（スマホでも押しやすいよう最低56px） ---- */
+
+.btn {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 22px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  background: var(--tone-info);
+  cursor: pointer;
+  /* 押したときにiPhoneで文字が選択されないようにする */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  filter: brightness(0.92);
+}
+
+.btn:disabled {
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #0b5fa5;
+}
+
+.btn-danger {
+  background: #b3261e;
+}
+
+.btn-quiet {
+  background: transparent;
+  color: var(--tone-info);
+  border: 2px solid var(--border);
+  font-size: 17px;
+  min-height: 52px;
+}
+
+.btn + .btn {
+  margin-top: 12px;
+}
+
+/* ---- 役割選択（トップページ） ---- */
+
+.role-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.role-link-title {
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.role-link-desc {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* ---- 状態表示 ---- */
+
+.status {
+  border-radius: var(--radius);
+  border: 2px solid currentColor;
+  padding: 16px 18px;
+  color: var(--tone-neutral);
+  background: var(--surface);
+}
+
+.status[data-tone="info"] {
+  color: var(--tone-info);
+}
+.status[data-tone="active"] {
+  color: var(--tone-active);
+}
+.status[data-tone="danger"] {
+  color: var(--tone-danger);
+}
+
+.status-label {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  /* 文言が2行に折り返しても、丸印が1行目の高さに揃うようにする */
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  margin-top: 0.55em;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.status[data-tone="active"] .status-dot,
+.status[data-tone="danger"] .status-dot {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.status-description {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--text);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot {
+    animation: none;
+  }
+}
+
+/* ---- マイク使用中の表示 ---- */
+
+.mic-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-weight: 700;
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  background: var(--surface);
+}
+
+.mic-indicator[data-live="true"] {
+  color: #fff;
+  background: #b3261e;
+  border-color: #b3261e;
+}
+
+.mic-indicator-text {
+  font-size: 18px;
+  flex: none;
+}
+
+.mic-meter {
+  flex: 1;
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.mic-indicator[data-live="false"] .mic-meter {
+  background: var(--border);
+}
+
+.mic-meter-fill {
+  height: 100%;
+  background: #fff;
+  border-radius: 6px;
+  transition: width 80ms linear;
+}
+
+/* ---- 自宅PC の待機画面（部屋の離れた場所からでも読める大きさ） ---- */
+
+.standby {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+  text-align: center;
+  background: #0b3d6b;
+  color: #fff;
+}
+
+.standby[data-phase="in-call"] {
+  background: #0d7a3f;
+}
+
+.standby[data-phase="error"] {
+  background: #8c1d18;
+}
+
+.standby-headline {
+  font-size: clamp(40px, 9vw, 104px);
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+
+.standby-sub {
+  font-size: clamp(18px, 2.4vw, 28px);
+  margin: 0;
+  max-width: 22em;
+  opacity: 0.92;
+}
+
+.standby-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.standby-footer .btn {
+  width: auto;
+  min-width: 220px;
+  min-height: 56px;
+  font-size: 19px;
+}
+
+/* 濃い背景の上では、控えめボタンも白で描く */
+.standby-footer .btn-quiet {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+}
+
+.standby-top {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px;
+}
+
+.standby-top .mic-indicator {
+  max-width: 560px;
+  width: 100%;
+}
+
+/* ---- 注意書き ---- */
+
+.note {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 12px 0 0;
+}
+
+.note-list {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 8px 0 0;
+  padding-left: 1.2em;
+}
+
+.note-list li {
+  margin-bottom: 4px;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+/* ---- ステップ1-1 用の表示確認パネル（動作確認が済んだら削除する） ---- */
+
+.preview-panel {
+  margin-top: 32px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.preview-panel summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.preview-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.preview-buttons button {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}

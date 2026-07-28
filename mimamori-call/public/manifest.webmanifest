@@ -1,0 +1,23 @@
+{
+  "name": "見守り通話",
+  "short_name": "見守り通話",
+  "description": "家族用の見守り音声通話。録音・保存はしません。",
+  "start_url": "/parent",
+  "display": "standalone",
+  "background_color": "#0b3d6b",
+  "theme_color": "#0b3d6b",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
