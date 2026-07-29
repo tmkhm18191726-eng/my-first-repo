@@ -87,6 +87,12 @@
   font-weight: 600;
 }
 
+.add-button.secondary {
+  background: transparent;
+  border: 1px solid #333;
+  color: #ccc;
+}
+
 .channel-header {
   display: flex;
   align-items: center;
@@ -226,6 +232,11 @@
   margin: 0;
   font-size: 12px;
   color: #9a9a9a;
+}
+
+.video-meta-analytics {
+  margin-top: 2px;
+  color: #7ec8ff;
 }
 
 .video-empty {

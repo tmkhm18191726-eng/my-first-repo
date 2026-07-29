@@ -4,9 +4,10 @@ import { ChannelStatusCard } from './ChannelStatusCard'
 interface Props {
   apiKey: string
   channels: ChannelEntry[]
+  googleAccessToken: string | null
 }
 
-export function ChannelListView({ apiKey, channels }: Props) {
+export function ChannelListView({ apiKey, channels, googleAccessToken }: Props) {
   const mine = channels.filter((c) => c.group === 'mine')
   const benchmark = channels.filter((c) => c.group === 'benchmark')
 
@@ -16,7 +17,12 @@ export function ChannelListView({ apiKey, channels }: Props) {
         <section>
           <h2 className="list-group-title">自分のチャンネル</h2>
           {mine.map((channel) => (
-            <ChannelStatusCard key={channel.id} apiKey={apiKey} channel={channel} />
+            <ChannelStatusCard
+              key={channel.id}
+              apiKey={apiKey}
+              channel={channel}
+              googleAccessToken={googleAccessToken}
+            />
           ))}
         </section>
       )}
@@ -24,7 +30,12 @@ export function ChannelListView({ apiKey, channels }: Props) {
         <section>
           <h2 className="list-group-title">ベンチマーク</h2>
           {benchmark.map((channel) => (
-            <ChannelStatusCard key={channel.id} apiKey={apiKey} channel={channel} />
+            <ChannelStatusCard
+              key={channel.id}
+              apiKey={apiKey}
+              channel={channel}
+              googleAccessToken={googleAccessToken}
+            />
           ))}
         </section>
       )}

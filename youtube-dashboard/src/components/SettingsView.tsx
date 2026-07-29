@@ -5,6 +5,13 @@ import { resolveChannel, YouTubeApiError } from '../lib/youtube'
 interface Props {
   apiKey: string
   onApiKeyChange: (value: string) => void
+  oauthClientId: string
+  onOauthClientIdChange: (value: string) => void
+  googleAccessToken: string | null
+  googleAuthBusy: boolean
+  googleAuthError: string | null
+  onGoogleLogin: () => void
+  onGoogleLogout: () => void
   channels: ChannelEntry[]
   onAddChannel: (channel: ChannelEntry) => void
   onRemoveChannel: (id: string) => void
@@ -14,6 +21,13 @@ interface Props {
 export function SettingsView({
   apiKey,
   onApiKeyChange,
+  oauthClientId,
+  onOauthClientIdChange,
+  googleAccessToken,
+  googleAuthBusy,
+  googleAuthError,
+  onGoogleLogin,
+  onGoogleLogout,
   channels,
   onAddChannel,
   onRemoveChannel,
@@ -61,6 +75,41 @@ export function SettingsView({
         <p className="settings-note">
           Google Cloud ConsoleでYouTube Data API v3を有効にして発行したAPIキーを入力してください。この端末のブラウザ内にのみ保存されます。
         </p>
+      </section>
+
+      <section className="settings-card">
+        <h2 className="section-title">直近7日間の再生数・インプレッション・CTR</h2>
+        <label className="settings-field-label" htmlFor="oauth-client-id">
+          OAuthクライアントID(ウェブアプリケーション用)
+        </label>
+        <input
+          id="oauth-client-id"
+          type="text"
+          className="settings-input"
+          placeholder="xxxxxxxx.apps.googleusercontent.com"
+          value={oauthClientId}
+          onChange={(e) => onOauthClientIdChange(e.target.value)}
+          autoComplete="off"
+          spellCheck={false}
+        />
+        <p className="settings-note">
+          Google Cloud ConsoleでOAuthクライアントID(ウェブアプリケーション)を発行し、承認済みのJavaScript生成元にこのアプリのURLを追加してください。この機能は自分が管理しているチャンネルのみ利用できます。
+        </p>
+        {googleAccessToken ? (
+          <button type="button" className="add-button secondary" onClick={onGoogleLogout}>
+            Googleからログアウト
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="add-button"
+            onClick={onGoogleLogin}
+            disabled={googleAuthBusy || !oauthClientId}
+          >
+            {googleAuthBusy ? 'ログイン中...' : 'Googleでログイン'}
+          </button>
+        )}
+        {googleAuthError && <p className="status-error inline">{googleAuthError}</p>}
       </section>
 
       <section className="settings-card">

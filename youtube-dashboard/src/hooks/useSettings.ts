@@ -2,10 +2,15 @@ import { useCallback, useEffect, useState } from 'react'
 import type { ChannelEntry } from '../types'
 
 const API_KEY_STORAGE = 'yt-dashboard:apiKey'
+const OAUTH_CLIENT_ID_STORAGE = 'yt-dashboard:oauthClientId'
 const CHANNELS_STORAGE = 'yt-dashboard:channels'
 
 function loadApiKey(): string {
   return localStorage.getItem(API_KEY_STORAGE) ?? ''
+}
+
+function loadOauthClientId(): string {
+  return localStorage.getItem(OAUTH_CLIENT_ID_STORAGE) ?? ''
 }
 
 function loadChannels(): ChannelEntry[] {
@@ -19,6 +24,7 @@ function loadChannels(): ChannelEntry[] {
 
 export function useSettings() {
   const [apiKey, setApiKeyState] = useState(loadApiKey)
+  const [oauthClientId, setOauthClientIdState] = useState(loadOauthClientId)
   const [channels, setChannels] = useState<ChannelEntry[]>(loadChannels)
 
   useEffect(() => {
@@ -26,10 +32,15 @@ export function useSettings() {
   }, [apiKey])
 
   useEffect(() => {
+    localStorage.setItem(OAUTH_CLIENT_ID_STORAGE, oauthClientId)
+  }, [oauthClientId])
+
+  useEffect(() => {
     localStorage.setItem(CHANNELS_STORAGE, JSON.stringify(channels))
   }, [channels])
 
   const setApiKey = useCallback((value: string) => setApiKeyState(value.trim()), [])
+  const setOauthClientId = useCallback((value: string) => setOauthClientIdState(value.trim()), [])
 
   const addChannel = useCallback((channel: ChannelEntry) => {
     setChannels((prev) => (prev.some((c) => c.id === channel.id) ? prev : [...prev, channel]))
@@ -50,5 +61,14 @@ export function useSettings() {
     })
   }, [])
 
-  return { apiKey, setApiKey, channels, addChannel, removeChannel, moveChannel }
+  return {
+    apiKey,
+    setApiKey,
+    oauthClientId,
+    setOauthClientId,
+    channels,
+    addChannel,
+    removeChannel,
+    moveChannel,
+  }
 }

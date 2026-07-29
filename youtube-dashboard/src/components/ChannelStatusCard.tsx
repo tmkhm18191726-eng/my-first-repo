@@ -1,14 +1,24 @@
 import type { ChannelEntry } from '../types'
 import { useChannelSnapshot } from '../hooks/useChannelSnapshot'
+import { useVideoAnalytics } from '../hooks/useVideoAnalytics'
 import { formatCountJa, formatRelativeJa } from '../lib/format'
 
 interface Props {
   apiKey: string
   channel: ChannelEntry
+  googleAccessToken: string | null
 }
 
-export function ChannelStatusCard({ apiKey, channel }: Props) {
+export function ChannelStatusCard({ apiKey, channel, googleAccessToken }: Props) {
   const { snapshot, loading, error, refresh } = useChannelSnapshot(apiKey, channel)
+  const recentVideoIds = snapshot?.videos.slice(0, 3).map((v) => v.id) ?? []
+  const analyticsEnabled = channel.group === 'mine'
+  const { data: analytics, error: analyticsError } = useVideoAnalytics(
+    googleAccessToken,
+    channel.id,
+    recentVideoIds,
+    analyticsEnabled,
+  )
 
   return (
     <div className="channel-card">
@@ -66,11 +76,28 @@ export function ChannelStatusCard({ apiKey, channel }: Props) {
                     {formatRelativeJa(video.publishedAt)} ・ 👁 {formatCountJa(video.viewCount)}
                     {video.commentCount !== null && <> ・ 💬 {formatCountJa(video.commentCount)}</>}
                   </p>
+                  {analyticsEnabled && analytics[video.id] && (
+                    <p className="video-meta video-meta-analytics">
+                      過去7日: 再生 {formatCountJa(analytics[video.id].views)}
+                      {analytics[video.id].impressions !== null && (
+                        <> ・ インプレッション {formatCountJa(analytics[video.id].impressions)}</>
+                      )}
+                      {analytics[video.id].ctr !== null && (
+                        <> ・ CTR {analytics[video.id].ctr!.toFixed(1)}%</>
+                      )}
+                    </p>
+                  )}
                 </div>
               </li>
             ))}
             {snapshot.videos.length === 0 && <li className="video-empty">動画が見つかりませんでした。</li>}
           </ul>
+          {analyticsEnabled && !googleAccessToken && (
+            <p className="settings-note">
+              過去7日間の再生数・インプレッション・CTRを見るには、設定画面でGoogleログインしてください。
+            </p>
+          )}
+          {analyticsError && <p className="status-error inline">{analyticsError}</p>}
         </>
       )}
     </div>
