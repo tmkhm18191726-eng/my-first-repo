@@ -1,0 +1,23 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Maru Gothic Pro', 'UD Digi Kyokasho N-R',
+    'BIZ UDGothic', system-ui, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overscroll-behavior: none;
+  background: #0f0f0f;
+  color: #f1f1f1;
+}
+
+#root {
+  height: 100svh;
+}
