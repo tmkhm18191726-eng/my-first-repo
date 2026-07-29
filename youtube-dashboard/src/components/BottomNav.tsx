@@ -1,4 +1,4 @@
-export type TabKey = 'status' | 'settings'
+export type TabKey = 'list' | 'settings'
 
 interface Props {
   tab: TabKey
@@ -10,11 +10,11 @@ export function BottomNav({ tab, onChange }: Props) {
     <nav className="bottom-nav">
       <button
         type="button"
-        className={`nav-item${tab === 'status' ? ' nav-item-active' : ''}`}
-        onClick={() => onChange('status')}
+        className={`nav-item${tab === 'list' ? ' nav-item-active' : ''}`}
+        onClick={() => onChange('list')}
       >
         <span aria-hidden="true">📊</span>
-        <span>状況</span>
+        <span>一覧</span>
       </button>
       <button
         type="button"

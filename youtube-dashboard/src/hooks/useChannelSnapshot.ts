@@ -5,10 +5,6 @@ import type { ChannelEntry, ChannelSnapshot } from '../types'
 const CACHE_TTL_MS = 2 * 60 * 1000
 const cache = new Map<string, ChannelSnapshot>()
 
-export function getCachedSnapshots(): Map<string, ChannelSnapshot> {
-  return cache
-}
-
 export function useChannelSnapshot(apiKey: string, channel: ChannelEntry | null) {
   const [snapshot, setSnapshot] = useState<ChannelSnapshot | null>(
     channel ? (cache.get(channel.id) ?? null) : null,
