@@ -11,7 +11,7 @@ interface Props {
 
 export function ChannelStatusCard({ apiKey, channel, googleAccessToken }: Props) {
   const { snapshot, loading, error, refresh } = useChannelSnapshot(apiKey, channel)
-  const recentVideoIds = snapshot?.videos.slice(0, 3).map((v) => v.id) ?? []
+  const recentVideoIds = snapshot?.videos.slice(0, 10).map((v) => v.id) ?? []
   const analyticsEnabled = channel.group === 'mine'
   const { data: analytics, error: analyticsError } = useVideoAnalytics(
     googleAccessToken,
@@ -61,7 +61,7 @@ export function ChannelStatusCard({ apiKey, channel, googleAccessToken }: Props)
           </div>
 
           <ul className="video-list">
-            {snapshot.videos.slice(0, 3).map((video) => (
+            {snapshot.videos.slice(0, 10).map((video) => (
               <li key={video.id} className="video-item">
                 {video.thumbnail && <img src={video.thumbnail} alt="" className="video-thumb" />}
                 <div className="video-info">

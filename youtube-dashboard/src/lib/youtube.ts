@@ -91,7 +91,7 @@ export async function fetchChannelSnapshot(
   if (uploadsPlaylistId) {
     const playlistData = await apiGet(
       'playlistItems',
-      { part: 'contentDetails', playlistId: uploadsPlaylistId, maxResults: '6' },
+      { part: 'contentDetails', playlistId: uploadsPlaylistId, maxResults: '10' },
       apiKey,
     )
     const videoIds: string[] = (playlistData.items ?? [])
