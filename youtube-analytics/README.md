@@ -54,7 +54,10 @@ npm run dev       # http://localhost:3000 が開く
      - `https://www.googleapis.com/auth/yt-analytics.readonly`
      - `https://www.googleapis.com/auth/youtube.readonly`
 4. 「認証情報」→「認証情報を作成」→ **OAuth クライアント ID**
-   - アプリケーションの種類: **デスクトップアプリ**
+   - アプリケーションの種類は、次の手順2でどちらの方法を使うかで変わります
+     - ブラウザだけで済ませる → **ウェブ アプリケーション**（承認済みリダイレクトURIに
+       `https://developers.google.com/oauthplayground` を追加）
+     - 手元のPCで完結させる → **デスクトップアプリ**
    - できあがった **クライアントID** と **クライアントシークレット** を控える
 
 > テストモードの OAuth クライアントは、リフレッシュトークンの有効期限が7日間です。
@@ -63,7 +66,27 @@ npm run dev       # http://localhost:3000 が開く
 
 ### 2. リフレッシュトークンを取得する
 
-自分のPCで一度だけ実行します。ブラウザが開くので、チャンネルの Google アカウントで許可してください。
+一度だけ必要な作業です。どちらの方法でも結果は同じなので、やりやすいほうを選んでください。
+
+#### 方法A: ブラウザだけで完結する（Node環境が不要）
+
+1. [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/) を開く
+2. 右上の歯車 ⚙ →  **Use your own OAuth credentials** にチェックを入れ、
+   クライアントIDとシークレットを入力
+3. 左側の入力欄に、次の2つのスコープを1行ずつ貼って **Authorize APIs**
+   - `https://www.googleapis.com/auth/yt-analytics.readonly`
+   - `https://www.googleapis.com/auth/youtube.readonly`
+4. チャンネルのアカウントでログインして許可
+5. **Exchange authorization code for tokens** を押すと `refresh_token` が表示される
+
+この方法を使う場合、OAuth クライアントは **ウェブ アプリケーション** 種別で作り、
+承認済みリダイレクトURIに `https://developers.google.com/oauthplayground` を
+追加しておく必要があります。
+
+#### 方法B: 手元のPCで実行する
+
+OAuth クライアントを **デスクトップアプリ** 種別で作った場合はこちらです。
+ブラウザが自動で開くので、チャンネルの Google アカウントで許可してください。
 
 ```bash
 cd youtube-analytics
