@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { PassphraseGate } from "@/components/PassphraseGate";
+import { SoundTest } from "@/components/SoundTest";
 import { StandbyScreen } from "@/components/StandbyScreen";
 import { StatusBanner } from "@/components/StatusBanner";
 import { isMicLive } from "@/lib/call/status";
@@ -49,6 +50,12 @@ function HomePcScreen() {
       </div>
 
       <div className="card">
+        <p className="section-title">① 音が出るか確かめる</p>
+        <SoundTest />
+      </div>
+
+      <div className="card">
+        <p className="section-title">② 待機を始める</p>
         <button type="button" className="btn btn-primary" onClick={session.start}>
           待機開始
         </button>

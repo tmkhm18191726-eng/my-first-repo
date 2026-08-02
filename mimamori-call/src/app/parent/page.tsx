@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { CallControls } from "@/components/CallControls";
 import { MicIndicator } from "@/components/MicIndicator";
 import { PassphraseGate } from "@/components/PassphraseGate";
+import { SoundTest } from "@/components/SoundTest";
 import { StatusBanner } from "@/components/StatusBanner";
 import { isMicLive } from "@/lib/call/status";
 import { useCallSession } from "@/lib/call/useCallSession";
@@ -70,6 +71,11 @@ function ParentScreen() {
           />
         </div>
         <p className="note">※ 「接続する」を押すとマイクを使います。会話は録音されません。</p>
+      </div>
+
+      <div className="card">
+        <p className="section-title">音が聞こえないときは</p>
+        <SoundTest />
       </div>
 
       <div className="card">

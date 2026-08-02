@@ -104,6 +104,8 @@ export function useCallSession(role: CallRole): CallSession {
     if (!remoteAudioRef.current) {
       const el = document.createElement("audio");
       el.autoplay = true;
+      // ブラウザ側で音量が絞られたままにならないよう、明示的に最大にする
+      el.volume = 1;
       // iPhone で全画面プレーヤーに切り替わらないようにする
       el.setAttribute("playsinline", "");
       el.style.display = "none";
