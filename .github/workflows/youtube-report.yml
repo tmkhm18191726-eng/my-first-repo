@@ -1,0 +1,107 @@
+name: Daily YouTube report
+
+on:
+  schedule:
+    # 03:00 UTC = 12:00 JST（毎日お昼にレポートを更新）
+    - cron: '0 3 * * *'
+  push:
+    branches:
+      - claude/bgm-podcast-setup-niybdx
+      - claude/youtube-analytics-gemini-h83r1z
+    paths:
+      - 'youtube-analytics/**'
+      - 'weather-app/**'
+      - '.github/workflows/youtube-report.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# weather-app と YouTube レポートを1つのサイトとしてまとめて配信するため、
+# Pages へのデプロイはこのワークフローに一本化しています。
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # --- weather-app（サイトのルートに配置） ---------------------------------
+      - name: Install weather-app deps
+        working-directory: weather-app
+        run: npm ci
+
+      - name: Build weather-app
+        working-directory: weather-app
+        run: npm run build
+
+      # --- YouTube レポート（/youtube に配置） ---------------------------------
+      - name: Install report deps
+        working-directory: youtube-analytics
+        run: npm ci
+
+      - name: Fetch YouTube Analytics
+        id: fetch
+        working-directory: youtube-analytics
+        continue-on-error: true
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: npm run fetch
+
+      - name: Report data source used
+        working-directory: youtube-analytics
+        run: |
+          if [ "${{ steps.fetch.outcome }}" = "success" ]; then
+            echo "✅ YouTube Analytics API から最新データを取得しました。" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ API からの取得に失敗したため、リポジトリに入っている CSV でビルドします。" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Secrets（YT_CLIENT_ID / YT_CLIENT_SECRET / YT_REFRESH_TOKEN）が未設定の場合は、" >> "$GITHUB_STEP_SUMMARY"
+            echo "\`youtube-analytics/README.md\` のセットアップ手順を実施してください。" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Set Evidence base path
+        working-directory: youtube-analytics
+        run: node scripts/set-base-path.mjs
+
+      - name: Build report
+        working-directory: youtube-analytics
+        run: |
+          npm run sources
+          npm run build
+
+      # --- 1つの成果物にまとめる ------------------------------------------------
+      - name: Assemble site
+        run: |
+          mkdir -p _site/youtube
+          cp -r weather-app/dist/. _site/
+          cp -r youtube-analytics/build/. _site/youtube/
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

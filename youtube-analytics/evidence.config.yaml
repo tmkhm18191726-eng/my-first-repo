@@ -1,0 +1,73 @@
+appearance:
+  default: system
+  switcher: true
+
+# GitHub Pages では /<リポジトリ名>/youtube 配下に置かれるため、
+# CI が scripts/set-base-path.mjs でこの値を書き換えます。
+# ローカルで `npm run dev` するときは空のままでOKです。
+deployment:
+  basePath: ""
+
+theme:
+  # カテゴリ配色は色覚多様性シミュレーション込みで検証済みの並び順です。
+  # 隣り合う色のΔE（CVD時）が基準を満たすように順番が決まっているので、
+  # 色を足したり並べ替えたりするときは必ず再検証してください。
+  colorPalettes:
+    default:
+      light:
+        - "#e34948"
+        - "#2a78d6"
+        - "#1baf7a"
+        - "#eda100"
+        - "#e87ba4"
+        - "#008300"
+        - "#4a3aa7"
+        - "#eb6834"
+      dark:
+        - "#e66767"
+        - "#3987e5"
+        - "#199e70"
+        - "#c98500"
+        - "#d55181"
+        - "#008300"
+        - "#9085e9"
+        - "#d95926"
+  # 連続量（ヒートマップ等）は単一色相の明→暗。虹色にはしません。
+  colorScales:
+    default:
+      light:
+        - "#cde2fb"
+        - "#184f95"
+      dark:
+        - "#0d366b"
+        - "#9ec5f4"
+  colors:
+    primary:
+      light: "#cc0027"
+      dark: "#ff4d6d"
+    accent:
+      light: "#c2410c"
+      dark: "#fdba74"
+    base:
+      light: "#ffffff"
+      dark: "#09090b"
+    info:
+      light: "#2a78d6"
+      dark: "#3987e5"
+    positive:
+      light: "#006300"
+      dark: "#0ca30c"
+    warning:
+      light: "#fab219"
+      dark: "#fab219"
+    negative:
+      light: "#d03b3b"
+      dark: "#d03b3b"
+
+plugins:
+  components:
+    "@evidence-dev/core-components": {}
+
+  datasources:
+    "@evidence-dev/csv": {}
+    "@evidence-dev/duckdb": {}
