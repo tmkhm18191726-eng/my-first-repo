@@ -9,6 +9,7 @@
     "dev:signal": "node -e \"require('fs').mkdirSync('out',{recursive:true})\" && wrangler dev --port 8787",
     "preview": "next build && wrangler dev --port 8787",
     "tunnel": "cloudflared tunnel --url http://localhost:8787",
+    "check": "node scripts/doctor.mjs",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json",
     "cf-typegen": "wrangler types"
   },
