@@ -31,34 +31,123 @@
 
 ---
 
-## 手元で動かしてみる（Windows ノートパソコンでの手順）
+## はじめての準備（Windows ノートパソコン。1回だけ）
 
-### 1. 必要なものを入れる
+> ここは **上から順に、1つずつ** 実行してください。
+> 途中でエラーが出たら、その先に進まずに教えてください。
 
-[Node.js](https://nodejs.org/ja) の LTS 版（20 以上）をインストールしてください。
-インストール後、「PowerShell」を開いて次を実行し、バージョンが表示されれば成功です。
+### 1. 必要な道具を2つ入れる
+
+**Node.js**（プログラムを動かす土台）と **Git**（プロジェクトを取ってくる道具）が必要です。
+
+「PowerShell」を開いて、次の2つを実行してください。
 
 ```powershell
 node -v
+git --version
 ```
 
-### 2. このプロジェクトを取ってくる
+`v22.x.x` `git version 2.x.x` のようにバージョンが出れば、すでに入っています。
+
+**「認識されません」と出た場合**は、出なかったほうを入れてください。
 
 ```powershell
-git clone https://github.com/tmkhm18191726-eng/my-first-repo.git
-cd my-first-repo\mimamori-call
+winget install --id OpenJS.NodeJS.LTS
+winget install --id Git.Git
+```
+
+インストールが終わったら、**PowerShell をいったん閉じて開き直してから**、
+もう一度 `node -v` と `git --version` で確認してください。
+
+### 2. プロジェクトを取ってくる
+
+> ⚠️ **`-b` から始まる部分を必ず付けてください。**
+> このアプリは `claude/family-monitoring-voice-app-erh82h` という置き場所（ブランチ）に
+> 入っています。これを付けずに取ってくると、`mimamori-call` フォルダが存在せず、
+> 次の `cd` で「パスが存在しないため検出できません」というエラーになります。
+
+PowerShell に、次の**2行を続けて**貼り付けてください。
+
+```powershell
+cd $HOME
+git clone -b claude/family-monitoring-voice-app-erh82h https://github.com/tmkhm18191726-eng/my-first-repo.git
+```
+
+`Resolving deltas: 100%` のように出て、エラーがなければ成功です。
+
+### 3. フォルダに移動して、部品を入れる
+
+```powershell
+cd $HOME\my-first-repo\mimamori-call
 npm install
 ```
 
-### 3. 起動する（PowerShell を **2つ** 開きます）
+`added ○○ packages` と出れば成功です（1〜2分かかります）。
 
-このアプリは「画面を配る係」と「つなぎ役（相手を見つける係）」の 2つで動きます。
-PowerShell のウィンドウを2つ開いて、それぞれで1つずつ動かしてください。
+### 4. ちゃんと準備できたか確認する
+
+```powershell
+npm run check
+```
+
+`❌` が付いていなければ準備完了です（`⚠️` は今の段階では問題ありません）。
+
+> **2回目からは、PowerShell を開いたらまず次を実行してください。**
+>
+> ```powershell
+> cd $HOME\my-first-repo\mimamori-call
+> ```
+>
+> ここが「作業する場所」です。`npm` で始まるコマンドは、すべてこの場所で実行します。
+
+### 5. 最新の状態にする（2回目以降、私が更新を入れたとき）
+
+```powershell
+cd $HOME\my-first-repo\mimamori-call
+git pull
+npm install
+```
+
+---
+
+## 動かしてみる
+
+### いちばん簡単な動かし方（これだけ覚えれば大丈夫）
+
+PowerShell で次を実行します。
+
+```powershell
+cd $HOME\my-first-repo\mimamori-call
+npm run preview
+```
+
+⏳ **終わるまで1分ほどかかります。** 次の行が出るまで、ブラウザを開かずに待ってください。
+
+```
+Ready on http://localhost:8787
+```
+
+この行が出たら、Chrome か Edge で開きます。
+
+| 開くアドレス                   | 何の画面か                   |
+| ------------------------------ | ---------------------------- |
+| `http://localhost:8787/`       | 入口（親用／自宅PC用を選ぶ） |
+| `http://localhost:8787/parent` | 親のスマートフォン用         |
+| `http://localhost:8787/home`   | 自宅のパソコン用（待機画面） |
+
+止めるときは、PowerShell で `Ctrl` + `C` を押してください。
+**この PowerShell を閉じると、アプリも止まります。**
+
+---
+
+### 開発用の動かし方（プログラムを直しながら使うとき）
+
+こちらは PowerShell を **2つ** 使います。直したところがすぐ画面に反映されます。
 
 **1つめの PowerShell（つなぎ役）**
 
 ```powershell
-cd my-first-repo\mimamori-call
+cd $HOME\my-first-repo\mimamori-call
 npm run dev:signal
 ```
 
@@ -67,7 +156,7 @@ npm run dev:signal
 **2つめの PowerShell（画面）**
 
 ```powershell
-cd my-first-repo\mimamori-call
+cd $HOME\my-first-repo\mimamori-call
 npm run dev
 ```
 
@@ -75,7 +164,7 @@ npm run dev
 
 > どちらか片方だけだと動きません。画面には「準備中…」と表示されます。
 
-### 4. 画面を見る
+### 開発用のときに開くアドレス
 
 | 開くアドレス                   | 何の画面か                   |
 | ------------------------------ | ---------------------------- |
@@ -85,7 +174,9 @@ npm run dev
 
 止めるときは、それぞれの PowerShell で `Ctrl` + `C` を押してください。
 
-### 5. 動いているか確かめる（1台のパソコンだけでできます）
+---
+
+## 動いているか確かめる（1台のパソコンだけでできます）
 
 > ⚠️ **イヤホンを付けてから試してください。** 1台のパソコンで両方の画面を開くと、
 > スピーカーの音をマイクが拾ってしまい、キーンという音（ハウリング）が出ます。
@@ -259,6 +350,10 @@ npm run check
 | 症状                                         | 対処                                                                     |
 | -------------------------------------------- | ------------------------------------------------------------------------ |
 | **「このサイトにアクセスできません」<br>ERR_CONNECTION_REFUSED** | アプリが動いていません。`npm run preview` の PowerShell で **`Ready on http://localhost:8787` が出るまで待って** から開いてください。`npm run check` で確認できます |
+| **「パス … が存在しないため検出できません」**<br>（`cd` でエラー）  | プロジェクトがまだ取ってきてありません。上の「はじめての準備」からやり直してください。`git clone` のときに **`-b claude/family-monitoring-voice-app-erh82h` を必ず付けてください** |
+| `npm : 用語 'npm' は認識されません`            | Node.js が入っていません。`winget install --id OpenJS.NodeJS.LTS` のあと、PowerShell を開き直してください |
+| `git : 用語 'git' は認識されません`            | Git が入っていません。`winget install --id Git.Git` のあと、PowerShell を開き直してください |
+| `package.json が見つかりません`                | 違うフォルダにいます。`cd $HOME\my-first-repo\mimamori-call` を実行してください |
 | iPhone で「マイクを使えません」と出る        | Safari で開いているか確認。設定 → Safari → マイク を「確認」か「許可」に  |
 | iPhone で「安全な接続ではありません」と出る  | `http://` ではなく `https://` のトンネルのアドレスで開いてください        |
 | 「自宅のパソコンが待機していません」と出る   | パソコンで `/home` を開き「待機開始」を押したか確認してください           |

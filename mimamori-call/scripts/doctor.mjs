@@ -44,18 +44,37 @@ if (existsSync(join(root, "wrangler.jsonc"))) {
 } else {
   ng(
     "違うフォルダで実行しています",
-    "PowerShell で `cd my-first-repo\\mimamori-call` を実行してから、もう一度お試しください。",
+    "PowerShell で `cd $HOME\\my-first-repo\\mimamori-call` を実行してから、もう一度お試しください。",
   );
 }
 
-// --- 3. 必要な部品が入っているか ---
+// --- 3. 正しい置き場所（ブランチ）を使っているか ---
+const WANTED_BRANCH = "claude/family-monitoring-voice-app-erh82h";
+try {
+  const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+  if (branch === WANTED_BRANCH) {
+    ok(`置き場所（ブランチ）: ${branch}`);
+  } else {
+    ng(
+      `違う置き場所（ブランチ）を見ています：${branch}`,
+      `次を実行してください：\n       git checkout ${WANTED_BRANCH}`,
+    );
+  }
+} catch {
+  warn("置き場所（ブランチ）を確認できませんでした", "Git が入っていない可能性があります。");
+}
+
+// --- 4. 必要な部品が入っているか ---
 if (existsSync(join(root, "node_modules", "wrangler"))) {
   ok("必要な部品（node_modules）: 入っています");
 } else {
   ng("必要な部品が入っていません", "`npm install` を実行してください。");
 }
 
-// --- 4. 画面のファイルが作られているか ---
+// --- 5. 画面のファイルが作られているか ---
 if (existsSync(join(root, "out", "index.html"))) {
   ok("画面のファイル（out フォルダ）: 作られています");
 } else {
@@ -65,7 +84,7 @@ if (existsSync(join(root, "out", "index.html"))) {
   );
 }
 
-// --- 5. 合言葉の設定 ---
+// --- 6. 合言葉の設定 ---
 const devVars = join(root, ".dev.vars");
 if (!existsSync(devVars)) {
   warn(
@@ -86,7 +105,7 @@ if (!existsSync(devVars)) {
   }
 }
 
-// --- 6. サーバーが動いているか ---
+// --- 7. サーバーが動いているか ---
 let serverUp = false;
 try {
   const response = await fetch("http://localhost:8787/health", {
@@ -110,7 +129,7 @@ if (serverUp) {
   );
 }
 
-// --- 7. cloudflared（iPhone からつなぐとき用） ---
+// --- 8. cloudflared（iPhone からつなぐとき用） ---
 try {
   const version = execFileSync("cloudflared", ["--version"], {
     encoding: "utf8",
