@@ -33,58 +33,71 @@
 
 ## はじめての準備（Windows ノートパソコン。1回だけ）
 
-> ここは **上から順に、1つずつ** 実行してください。
-> 途中でエラーが出たら、その先に進まずに教えてください。
+> 📋 **貼り付けかたのお願い**
+>
+> このページのコマンドは、**枠1つにつき1行だけ**にしてあります。
+> 枠の中身をコピーして PowerShell に貼り付け、`Enter` を押す。これを枠ごとに繰り返してください。
+>
+> 複数行をまとめて貼り付けると、行がつながって
+> `git --versionwinget` のような意味不明なコマンドになり、失敗します。
 
-### 1. 必要な道具を2つ入れる
+### 1. 道具が入っているか確かめる
 
-**Node.js**（プログラムを動かす土台）と **Git**（プロジェクトを取ってくる道具）が必要です。
-
-「PowerShell」を開いて、次の2つを実行してください。
+**Node.js**（プログラムを動かす土台）が入っているか確認します。
 
 ```powershell
 node -v
+```
+
+**Git**（プロジェクトを取ってくる道具）が入っているか確認します。
+
+```powershell
 git --version
 ```
 
-`v22.x.x` `git version 2.x.x` のようにバージョンが出れば、すでに入っています。
+`v22.18.0` `git version 2.51.0` のようにバージョンが出れば、すでに入っています。次へ進んでください。
 
-**「認識されません」と出た場合**は、出なかったほうを入れてください。
+**「用語 … は認識されません」と出た場合だけ**、出なかったほうを入れてください。
+
+Node.js が無かった場合：
 
 ```powershell
 winget install --id OpenJS.NodeJS.LTS
+```
+
+Git が無かった場合：
+
+```powershell
 winget install --id Git.Git
 ```
 
-インストールが終わったら、**PowerShell をいったん閉じて開き直してから**、
+インストールしたら、**PowerShell をいったん閉じて開き直してから**、
 もう一度 `node -v` と `git --version` で確認してください。
 
-### 2. プロジェクトを取ってくる
+### 2. プロジェクトを取ってきて、部品を入れる
 
-> ⚠️ **`-b` から始まる部分を必ず付けてください。**
-> このアプリは `claude/family-monitoring-voice-app-erh82h` という置き場所（ブランチ）に
-> 入っています。これを付けずに取ってくると、`mimamori-call` フォルダが存在せず、
-> 次の `cd` で「パスが存在しないため検出できません」というエラーになります。
+> ⚠️ **`-b claude/family-monitoring-voice-app-erh82h` の部分は必ず必要です。**
+> このアプリはその置き場所（ブランチ）に入っています。これを付けずに取ってくると
+> `mimamori-call` フォルダが作られず、「パスが存在しないため検出できません」になります。
 
-PowerShell に、次の**2行を続けて**貼り付けてください。
-
-```powershell
-cd $HOME
-git clone -b claude/family-monitoring-voice-app-erh82h https://github.com/tmkhm18191726-eng/my-first-repo.git
-```
-
-`Resolving deltas: 100%` のように出て、エラーがなければ成功です。
-
-### 3. フォルダに移動して、部品を入れる
+次の **1行** をコピーして貼り付け、`Enter` を押してください。
+取得・移動・部品の用意を、まとめて行います（1〜2分かかります）。
 
 ```powershell
-cd $HOME\my-first-repo\mimamori-call
-npm install
+cd $HOME; git clone -b claude/family-monitoring-voice-app-erh82h https://github.com/tmkhm18191726-eng/my-first-repo.git; cd $HOME\my-first-repo\mimamori-call; npm install
 ```
 
-`added ○○ packages` と出れば成功です（1〜2分かかります）。
+最後に `added ○○ packages` と出れば成功です。
 
-### 4. ちゃんと準備できたか確認する
+> すでに `my-first-repo` フォルダがある状態でこれを実行すると
+> `already exists and is not an empty directory` と出ます。
+> その場合は、代わりに次の1行を実行してください（最新の状態にします）。
+>
+> ```powershell
+> cd $HOME\my-first-repo; git fetch origin claude/family-monitoring-voice-app-erh82h; git checkout claude/family-monitoring-voice-app-erh82h; git pull; cd mimamori-call; npm install
+> ```
+
+### 3. ちゃんと準備できたか確認する
 
 ```powershell
 npm run check
@@ -100,12 +113,12 @@ npm run check
 >
 > ここが「作業する場所」です。`npm` で始まるコマンドは、すべてこの場所で実行します。
 
-### 5. 最新の状態にする（2回目以降、私が更新を入れたとき）
+### 4. 最新の状態にする（2回目以降、更新が入ったとき）
+
+次の1行で、最新の状態にできます。
 
 ```powershell
-cd $HOME\my-first-repo\mimamori-call
-git pull
-npm install
+cd $HOME\my-first-repo\mimamori-call; git pull; npm install
 ```
 
 ---
@@ -114,11 +127,10 @@ npm install
 
 ### いちばん簡単な動かし方（これだけ覚えれば大丈夫）
 
-PowerShell で次を実行します。
+PowerShell で、次の **1行** を実行します。
 
 ```powershell
-cd $HOME\my-first-repo\mimamori-call
-npm run preview
+cd $HOME\my-first-repo\mimamori-call; npm run preview
 ```
 
 ⏳ **終わるまで1分ほどかかります。** 次の行が出るまで、ブラウザを開かずに待ってください。
@@ -147,8 +159,7 @@ Ready on http://localhost:8787
 **1つめの PowerShell（つなぎ役）**
 
 ```powershell
-cd $HOME\my-first-repo\mimamori-call
-npm run dev:signal
+cd $HOME\my-first-repo\mimamori-call; npm run dev:signal
 ```
 
 `Ready on http://localhost:8787` と出れば成功です。
@@ -156,8 +167,7 @@ npm run dev:signal
 **2つめの PowerShell（画面）**
 
 ```powershell
-cd $HOME\my-first-repo\mimamori-call
-npm run dev
+cd $HOME\my-first-repo\mimamori-call; npm run dev
 ```
 
 `http://localhost:3000` と出れば成功です。
@@ -199,8 +209,6 @@ npm run dev
 
 ---
 
----
-
 ## iPhone からつないでみる（ステップ1-4）
 
 iPhone の Safari は、`https://` で始まるアドレスでないとマイクを使わせてくれません。
@@ -213,9 +221,7 @@ iPhone の Safari は、`https://` で始まるアドレスでないとマイク
 インターネットに出すので、**アドレスを知っているだけでは入れないように**します。
 
 ```powershell
-cd my-first-repo\mimamori-call
-copy .dev.vars.example .dev.vars
-notepad .dev.vars
+cd $HOME\my-first-repo\mimamori-call; copy .dev.vars.example .dev.vars; notepad .dev.vars
 ```
 
 メモ帳が開いたら、`ROOM_SECRET=` の右側に家族で決めた合言葉を書いて保存します。
@@ -250,8 +256,7 @@ cloudflared --version
 **1つめ：アプリを動かす**
 
 ```powershell
-cd my-first-repo\mimamori-call
-npm run preview
+cd $HOME\my-first-repo\mimamori-call; npm run preview
 ```
 
 > ⏳ **このコマンドは、終わるまで1分ほどかかります。**
@@ -271,8 +276,7 @@ npm run preview
 **2つめ：インターネットからの入口を作る**
 
 ```powershell
-cd my-first-repo\mimamori-call
-npm run tunnel
+cd $HOME\my-first-repo\mimamori-call; npm run tunnel
 ```
 
 しばらくすると、枠の中に次のようなアドレスが表示されます。
@@ -339,8 +343,7 @@ iPhone の Safari で `/parent` を開いた状態で、下の共有ボタン �
 別の PowerShell を開いて、次を実行すると、何が足りないかを日本語で教えてくれます。
 
 ```powershell
-cd my-first-repo\mimamori-call
-npm run check
+cd $HOME\my-first-repo\mimamori-call; npm run check
 ```
 
 `❌` が付いている行の「→」に書かれた対処を行ってください。
