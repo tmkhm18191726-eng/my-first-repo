@@ -54,6 +54,8 @@ export type RoomCheck = {
   required: boolean;
   /** 今持っている合言葉で入れるか */
   ok: boolean;
+  /** 合言葉が未設定のまま、外部に公開されている状態（誰も入れない） */
+  unconfigured?: boolean;
 };
 
 /** 合言葉が必要か、そして合っているかをサーバーに尋ねる。 */

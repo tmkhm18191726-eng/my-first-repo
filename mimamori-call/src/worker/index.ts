@@ -34,11 +34,23 @@ function requiredSecret(env: Env): string {
   return (env.ROOM_SECRET ?? "").trim();
 }
 
+/**
+ * 家の中からの接続（自分自身のパソコン）かどうか。
+ * トンネル経由のアクセスはここに当てはまらない。
+ */
+function isLocalRequest(url: URL): boolean {
+  return url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
+}
+
 function isAuthorized(url: URL, env: Env): boolean {
   const expected = requiredSecret(env);
-  // 合言葉を設定していなければ、誰でも入れる（手元で試すとき用）
-  if (!expected) return true;
-  return secretMatches(url.searchParams.get("secret") ?? "", expected);
+  if (expected) {
+    return secretMatches(url.searchParams.get("secret") ?? "", expected);
+  }
+  // 合言葉が未設定のときは、家の中（同じパソコン）からだけ使える。
+  // 合言葉なしでインターネットに公開されてしまう事故を防ぐため、
+  // 外からの接続は入口で断る。
+  return isLocalRequest(url);
 }
 
 function corsHeaders(request: Request): Record<string, string> {
@@ -61,8 +73,16 @@ export default {
     if (url.pathname === "/api/room") {
       // 画面側が「合言葉を聞くべきか」を判断するために使う。
       // 答えるのは true / false だけで、合言葉そのものは絶対に返さない。
+      const secretSet = requiredSecret(env) !== "";
       return Response.json(
-        { required: requiredSecret(env) !== "", ok: isAuthorized(url, env) },
+        {
+          // 合言葉が未設定でも、外からの接続には「合言葉が必要」と答える。
+          // （設定されていないので、実際には誰も入れない）
+          required: secretSet || !isLocalRequest(url),
+          ok: isAuthorized(url, env),
+          /** 合言葉が未設定のまま外部に公開されている状態 */
+          unconfigured: !secretSet && !isLocalRequest(url),
+        },
         {
           headers: {
             "cache-control": "no-store",

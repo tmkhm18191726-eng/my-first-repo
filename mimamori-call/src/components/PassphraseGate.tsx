@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { checkRoom, clearSecret, loadSecret, saveSecret } from "@/lib/call/room";
 
-type GateState = "checking" | "need-secret" | "ready" | "unreachable";
+type GateState = "checking" | "need-secret" | "ready" | "unreachable" | "unconfigured";
 
 /**
  * 合言葉を確かめてから中身を見せる入口。
@@ -19,6 +19,11 @@ export function PassphraseGate({ children }: { children: React.ReactNode }) {
 
   const verify = useCallback(async (secret: string) => {
     const result = await checkRoom(secret);
+    if (result.unconfigured) {
+      // 合言葉を決めないまま外部に公開されている。誰も入れない状態。
+      setState("unconfigured");
+      return false;
+    }
     if (!result.required || result.ok) {
       setState("ready");
       return true;
@@ -77,6 +82,30 @@ export function PassphraseGate({ children }: { children: React.ReactNode }) {
         <div className="card">
           <p className="status-description">確認しています…</p>
         </div>
+      </main>
+    );
+  }
+
+  if (state === "unconfigured") {
+    return (
+      <main className="page">
+        <h1 className="page-title">まだ外から使えません</h1>
+        <div className="card">
+          <div className="status" data-tone="danger">
+            <p className="status-label">
+              <span className="status-dot" aria-hidden="true" />
+              合言葉が設定されていません
+            </p>
+            <p className="status-description">
+              安全のため、合言葉を決めるまでは、外からの接続をすべてお断りしています。
+              自宅のパソコンで合言葉を設定し、アプリを起動し直してください。
+              （設定のしかたは README の「先に必ず：合言葉を決める」をご覧ください）
+            </p>
+          </div>
+        </div>
+        <p className="note">
+          自宅のパソコン本体からは、合言葉なしでそのまま使えます。
+        </p>
       </main>
     );
   }

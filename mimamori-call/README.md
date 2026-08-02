@@ -228,11 +228,19 @@ cd $HOME\my-first-repo\mimamori-call; npm run dev
 ## iPhone からつないでみる（ステップ1-4）
 
 iPhone の Safari は、`https://` で始まるアドレスでないとマイクを使わせてくれません。
-そこで **cloudflared** という無料の道具を使い、自宅パソコンに一時的な https アドレスを作ります。
+そこで wrangler に内蔵されている **トンネル機能** を使い、自宅パソコンに一時的な https アドレスを作ります。
 
 作業はぜんぶ **自宅の Windows ノートパソコン** で行います。
 
-### 1回だけの準備：合言葉を決める
+### ⚠️ 先に必ず：合言葉を決める
+
+トンネルを開くと、そのアドレスは **インターネット上の誰でも開ける状態** になります。
+合言葉を設定しないままトンネルを開くと、アドレスを知った人が自宅のマイクにつながってしまいます。
+
+> **順番を必ず守ってください。**
+> 1. 合言葉を設定する（この項目）
+> 2. アプリを **止めて、起動し直す**（合言葉は起動時に読み込まれるため）
+> 3. そのあとでトンネルを開く
 
 インターネットに出すので、**アドレスを知っているだけでは入れないように**します。
 
@@ -249,61 +257,52 @@ ROOM_SECRET=hanako-taro-2026
 - 名前や誕生日そのままは避けてください
 - このファイルは GitHub には送られません（`.gitignore` に入れてあります）
 
-### 1回だけの準備：cloudflared を入れる
+### cloudflared のインストールは不要です
 
-PowerShell で次を実行します。
+wrangler にトンネル機能が内蔵されており、必要な道具は初回に自動で入ります。
+別途インストールする必要はありません。
 
-```powershell
-winget install --id Cloudflare.cloudflared
-```
+### 毎回の手順
 
-`winget` が使えない場合は、[配布ページ](https://github.com/cloudflare/cloudflared/releases/latest)
-から `cloudflared-windows-amd64.exe` をダウンロードし、`cloudflared.exe` という名前に変えて
-`C:\Windows\System32` に置いてください。
-
-入ったかどうかは、**PowerShell を開き直してから** 次で確認できます。
-
-```powershell
-cloudflared --version
-```
-
-### 毎回の手順（PowerShell を 2つ 開きます）
-
-**1つめ：アプリを動かす**
+**1. 合言葉を設定してから、アプリを起動する**
 
 ```powershell
 cd $HOME\my-first-repo\mimamori-call; npm run preview
 ```
 
-> ⏳ **このコマンドは、終わるまで1分ほどかかります。**
-> 画面に次の行が出るまで、ブラウザを開かずに待ってください。
+> ⏳ **終わるまで1分ほどかかります。** 次の行が出るまで待ってください。
 >
 > ```
-> Ready on http://localhost:8787
+> Ready on http://127.0.0.1:8787
 > ```
 >
-> この行が出る前にブラウザで開くと「このサイトにアクセスできません
-> （ERR_CONNECTION_REFUSED）」になります。
->
-> また、**この PowerShell は閉じないでください。** 閉じるとアプリも止まります。
+> **この PowerShell は閉じないでください。** 閉じるとアプリも止まります。
 
-（`npm run preview` は、画面とつなぎ役を **1つのアドレスにまとめて** 動かします）
+起動時に `Using secrets defined in .dev.vars` と出ていれば、合言葉が読み込まれています。
 
-**2つめ：インターネットからの入口を作る**
+**2. 合言葉が効いているか、先に確かめる**
 
-```powershell
-cd $HOME\my-first-repo\mimamori-call; npm run tunnel
+ブラウザで `http://127.0.0.1:8787/home` を開き、**「合言葉を入力してください」の画面が出ること**を
+確認してください。
+
+> 🚨 この画面が出ないままトンネルを開くと、**誰でも自宅のマイクにつながります。**
+> 出ない場合は、`.dev.vars` に合言葉が書かれているかを確認し、
+> `Ctrl` + `C` で止めてから `npm run preview` で起動し直してください。
+
+**3. トンネルを開く**
+
+`npm run preview` を動かしている PowerShell で、キーボードの **`t`** を1回押します。
+
+しばらくすると、次のようなアドレスと QR コードが表示されます。
+
+```
+⬣ Sharing via Cloudflare Tunnel: https://xxxx-xxxx-xxxx.trycloudflare.com/
 ```
 
-しばらくすると、枠の中に次のようなアドレスが表示されます。
+**iPhone のカメラで QR コードを読み取れば、そのまま開けます。**
 
-```
-https://something-random-words.trycloudflare.com
-```
-
-**このアドレスを iPhone に送ってください**（自分宛のメールや LINE で送るのが簡単です）。
-
-> ⚠️ このアドレスは cloudflared を止めるたびに変わります。テストのたびに送り直してください。
+> ⚠️ このアドレスは、トンネルを開き直すたびに変わります。
+> ⚠️ 使い終わったら、**もう一度 `t` を押してトンネルを閉じてください。**
 
 ### 3. 自宅のパソコン側
 
@@ -317,10 +316,11 @@ Chrome か Edge で `http://localhost:8787/home` を開きます（トンネル�
 
 ### 4. iPhone 側
 
-**Safari** で、送っておいたトンネルのアドレスの後ろに `/parent` を付けて開きます。
+**Safari** で、トンネルのアドレスの後ろに `/parent` を付けて開きます。
+（QR コードを読み取った場合は、開いた画面で「親用」を選んでください）
 
 ```
-https://something-random-words.trycloudflare.com/parent
+https://xxxx-xxxx-xxxx.trycloudflare.com/parent
 ```
 
 1. 合言葉を入力する（1回だけ）
@@ -347,8 +347,8 @@ iPhone の Safari で `/parent` を開いた状態で、下の共有ボタン �
 
 ### 7. テストが終わったら
 
-**2つの PowerShell を両方とも `Ctrl` + `C` で止めてください。**
-トンネルを止めると、外部からのアドレスは使えなくなります。
+PowerShell で **`t` を押してトンネルを閉じ**、そのあと `Ctrl` + `C` でアプリを止めてください。
+トンネルを閉じると、外部からのアドレスは使えなくなります。
 
 ---
 
@@ -394,7 +394,6 @@ cd $HOME\my-first-repo\mimamori-call; npm run check
 | `npm run dev`        | 画面を手元で起動する（修正がすぐ画面に反映される）   |
 | `npm run dev:signal` | つなぎ役サーバーを手元で起動する                     |
 | `npm run preview`    | 画面とつなぎ役を **1つのアドレス** で起動する（実機テスト用） |
-| `npm run tunnel`     | インターネットからつなぐための https アドレスを作る |
 | `npm run build`      | 公開用に組み立てる。エラーがないかの確認にも使う     |
 | `npm run typecheck`  | プログラムの書き間違いがないか調べる                 |
 | `npm run cf-typegen` | `wrangler.jsonc` を変えたあと、型の定義を作り直す    |
