@@ -89,6 +89,22 @@ cd $HOME; git clone -b claude/family-monitoring-voice-app-erh82h https://github.
 
 最後に `added ○○ packages` と出れば成功です。
 
+> **次のような警告が出ても、そのまま進めて大丈夫です。**
+>
+> ```
+> npm warn install-scripts 3 packages had install scripts blocked ...
+> npm warn install-scripts   esbuild@… / sharp@… / workerd@…
+> ```
+>
+> 新しい npm が「部品の追加処理を、念のため止めました」と言っているだけです。
+> このアプリが使う部品は**完成した状態で配られている**ので、止まっていても問題ありません。
+> 同じ状態を再現して、`npm run preview` が正常に動くことを確認済みです。
+> （むしろ、止まっているほうが安全なので、わざわざ許可する必要はありません）
+>
+> `npm audit` の「3 high severity vulnerabilities」も、開発用の道具に関するもので、
+> 家庭で使うぶんには影響ありません。`npm audit fix --force` は
+> **実行しないでください**（動かなくなることがあります）。
+
 > すでに `my-first-repo` フォルダがある状態でこれを実行すると
 > `already exists and is not an empty directory` と出ます。
 > その場合は、代わりに次の1行を実行してください（最新の状態にします）。
@@ -357,6 +373,8 @@ cd $HOME\my-first-repo\mimamori-call; npm run check
 | `npm : 用語 'npm' は認識されません`            | Node.js が入っていません。`winget install --id OpenJS.NodeJS.LTS` のあと、PowerShell を開き直してください |
 | `git : 用語 'git' は認識されません`            | Git が入っていません。`winget install --id Git.Git` のあと、PowerShell を開き直してください |
 | `package.json が見つかりません`                | 違うフォルダにいます。`cd $HOME\my-first-repo\mimamori-call` を実行してください |
+| `npm warn install-scripts … blocked`           | **無視して大丈夫です。** 動作確認済みです（上の「取ってきて部品を入れる」の注記を参照） |
+| `workerd` が見つからない、と出て起動しない     | このときだけ次を実行してください：`npm install-scripts approve workerd`   |
 | iPhone で「マイクを使えません」と出る        | Safari で開いているか確認。設定 → Safari → マイク を「確認」か「許可」に  |
 | iPhone で「安全な接続ではありません」と出る  | `http://` ではなく `https://` のトンネルのアドレスで開いてください        |
 | 「自宅のパソコンが待機していません」と出る   | パソコンで `/home` を開き「待機開始」を押したか確認してください           |
