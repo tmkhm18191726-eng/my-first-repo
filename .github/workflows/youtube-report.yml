@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - claude/bgm-podcast-setup-niybdx
-      - claude/youtube-analytics-gemini-h83r1z
     paths:
       - 'youtube-analytics/**'
       - 'weather-app/**'
@@ -21,9 +20,11 @@ permissions:
 
 # weather-app と YouTube レポートを1つのサイトとしてまとめて配信するため、
 # Pages へのデプロイはこのワークフローに一本化しています。
+# cancel-in-progress は false。true にすると、後から始まった実行が
+# 進行中のデプロイを途中で打ち切ってしまいます。
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
