@@ -106,40 +106,50 @@ if (!existsSync(devVars)) {
 }
 
 // --- 7. サーバーが動いているか ---
-let serverUp = false;
-try {
-  const response = await fetch("http://localhost:8787/health", {
-    signal: AbortSignal.timeout(3000),
-  });
-  serverUp = response.ok;
-} catch {
-  serverUp = false;
+// Windows では localhost が IPv6(::1) になり、127.0.0.1 で待ち受けている
+// サーバーに届かないことがある。両方ためす。
+let reachableAt = null;
+for (const host of ["127.0.0.1", "localhost", "[::1]"]) {
+  try {
+    const response = await fetch(`http://${host}:8787/health`, {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (response.ok) {
+      reachableAt = host;
+      break;
+    }
+  } catch {
+    // このアドレスでは届かなかった。次をためす。
+  }
 }
 
-if (serverUp) {
+if (reachableAt) {
   ok(
     "アプリのサーバー: 動いています",
-    "ブラウザで http://localhost:8787/home を開いてください。",
+    `ブラウザで http://${reachableAt}:8787/home を開いてください。`,
   );
 } else {
   ng(
     "アプリのサーバーが動いていません（これが「このサイトにアクセスできません」の原因です）",
     "別の PowerShell を開いて `npm run preview` を実行し、\n" +
-      "       『Ready on http://localhost:8787』と表示されるまで待ってください（1分ほどかかります）。",
+      "       『Ready on http://127.0.0.1:8787』と表示されるまで待ってください（1分ほどかかります）。",
   );
 }
 
-// --- 8. cloudflared（iPhone からつなぐとき用） ---
-try {
-  const version = execFileSync("cloudflared", ["--version"], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "ignore"],
-  });
-  ok(`cloudflared: 入っています`, version.trim().split("\n")[0]);
-} catch {
+// --- 8. iPhone からつなぐ準備ができているか ---
+// トンネル機能は wrangler に内蔵されているので、別途インストールは不要。
+const secretReady = lines.some((line) => line.startsWith("✅ 合言葉"));
+if (secretReady) {
+  ok(
+    "iPhone からつなぐ準備: できています",
+    "`npm run preview` の画面で t キーを押すと、QR コードが表示されます。\n" +
+      "     使い終わったら、もう一度 t キーを押して閉じてください。",
+  );
+} else {
   warn(
-    "cloudflared が見つかりません",
-    "パソコンだけで試すなら不要です。\n     iPhone からつなぐときは `winget install --id Cloudflare.cloudflared` で入れて、\n     PowerShell を開き直してください。",
+    "iPhone からはまだつなげません（合言葉が未設定のため）",
+    "パソコンだけで試すなら、このままで大丈夫です。\n" +
+      "     合言葉がないあいだは、外からの接続をアプリが自動でお断りします。",
   );
 }
 
